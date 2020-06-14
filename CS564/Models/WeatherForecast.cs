@@ -1,6 +1,6 @@
 using System;
 
-namespace CS564
+namespace CS564.Models
 {
     public class WeatherForecast
     {

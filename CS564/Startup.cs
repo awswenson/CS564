@@ -26,7 +26,7 @@ namespace CS564
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/build";
+                configuration.RootPath = "View/build";
             });
         }
 
@@ -59,7 +59,7 @@ namespace CS564
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "ClientApp";
+                spa.Options.SourcePath = "View";
 
                 if (env.IsDevelopment())
                 {
