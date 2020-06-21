@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using CS564.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Logging;
 namespace CS564.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -25,7 +23,8 @@ namespace CS564.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        [Route("forcast")]
+        public IEnumerable<WeatherForecast> GetWeatherForcast()
         {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast

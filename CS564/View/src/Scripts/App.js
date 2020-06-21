@@ -3,20 +3,27 @@ import { Route } from 'react-router';
 import { Layout } from './Layout';
 import { Home } from './Home';
 import { FetchData } from './FetchData';
-import { Counter } from './Counter';
+import { Search } from './Search';
+import { Observations } from './Observations';
+import { Trips } from './Trips';
+import { Profile } from './Profile';
+
 
 import '../Styles/App.css'
 
 export default class App extends Component {
-  static displayName = App.name;
+    static displayName = App.name;
 
-  render () {
-    return (
-      <Layout>
-        <Route exact path='/' component={Home} />
-        <Route path='/counter' component={Counter} />
-        <Route path='/fetch-data' component={FetchData} />
-      </Layout>
-    );
-  }
+    render() {
+        return (
+            <Layout>
+                <Route exact path='/' component={Home} />
+                <Route path='/fetch-data' component={FetchData} />
+                <Route path='/search' component={Search} />
+                <Route path='/observations' component={Observations} />
+                <Route path='/trips' component={Trips} />
+                <Route path='/profile' component={Profile} />
+            </Layout>
+        );
+    }
 }

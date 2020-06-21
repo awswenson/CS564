@@ -1,26 +1,29 @@
 import React, { Component } from 'react';
 
 export class Home extends Component {
-  static displayName = Home.name;
+    static displayName = Home.name;
 
-  render () {
-    return (
-      <div>
-        <h1>Hello, world!</h1>
-        <p>Welcome to your new single-page application, built with:</p>
-        <ul>
-          <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-          <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-          <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-        </ul>
-        <p>To help you get started, we have also set up:</p>
-        <ul>
-          <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-          <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-          <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-        </ul>
-        <p>The <code>View</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div>
+                <h1>Home</h1>
+                <p>This web-application was built by Alex Swenson, Austin Steltz, and John O'Bryan for a CS 564 project at UW-Madison. It was built as a proof of concept to support and automate the most
+                    common workflows performed by the leading types of nature enthusiasts (e.g.hikers, wildlife photographers, birders, beachcombers, mushroom
+                    foragers, park rangers, and ecologists).
+                </p>
+                <p>
+                    The main feature of the application will be the retrieval and summarization of wildlife into ranked trending lists based on the entry of a geographic
+                    location (zip code) and time of year. The user will be able to:
+                </p>
+                <ul>
+                    <li>View the top trending species (ranked by number of observations) by a location (e.g., zip code) and the time of year (e.g., a specific date, month, season, or year)</li>
+                    <li>Filter the trending species by selecting a specific phylum, class, or kingdom</li>
+                    <li>Create trips to trackobservationswhen they visit certain locations (e.g., a hiker visiting a state park can create a trip to record observations along the hike)</li>
+                    <li>Log ad-hoc or trip-specific observations</li>
+                    <li>Modify and delete previous observations</li>
+                    <li>Delete previous trips</li>
+                </ul>
+            </div>
+        );
+    }
 }
