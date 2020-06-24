@@ -45,7 +45,7 @@ export class Observations extends Component {
                     <tbody id="observations">
                         {observations.map(observation =>
                             <tr key={observation.id}>
-                                <td>{observation.observationDate}</td>
+                                <td>{this.convertDate(observation.observationDate)}</td>
                                 <td>{observation.longitude}</td>
                                 <td>{observation.latitude}</td>
                                 <td>{observation.animal}</td>
@@ -57,6 +57,16 @@ export class Observations extends Component {
                 </table>
             </div>
         );
+    }
+
+    convertDate(dateTime) {
+        if (!dateTime) {
+            return "";
+        }
+
+        const date = new Date(Date.parse(dateTime));
+
+        return date ? date.toLocaleDateString() : "";
     }
 
     search(event) {
