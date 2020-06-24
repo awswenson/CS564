@@ -8,6 +8,10 @@ export class Search extends Component {
         this.state = { loading: true };
     }
 
+    componentDidMount() {
+        // TODO
+    }
+
     render() {
         return (
             <div>
