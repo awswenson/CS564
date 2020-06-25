@@ -17,6 +17,12 @@ export class Profile extends Component {
             <div>
                 {this.renderLogin()}
                 <br />
+                <div class="row">
+                    <div class="col"><hr /></div>
+                    <div class="col-auto">OR</div>
+                    <div class="col"><hr /></div>
+                </div>
+                <br />
                 {this.renderCreateAccount()}
             </div>
         );
@@ -25,7 +31,7 @@ export class Profile extends Component {
     renderLogin() {
         return (
             <div>
-                <h1 id="tabelLabel">Login</h1>
+                <h1>Login</h1>
                 <form class="form-content">
                     <div class="row">
                         <div class="col-md-6">
@@ -50,7 +56,7 @@ export class Profile extends Component {
     renderCreateAccount() {
         return (
             <div>
-                <h1 id="tabelLabel">Create Account</h1>
+                <h1>Create Account</h1>
                 <form class="form-content">
                     <div class="row">
                         <div class="col-md-6">

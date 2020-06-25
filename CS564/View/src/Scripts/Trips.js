@@ -18,11 +18,12 @@ export class Trips extends Component {
     }
 
     render() {
-        let contents = this.state.loading ? <p><em>Loading...</em></p> : this.renderTripTable(this.state.trips);
+        let contents = this.state.loading ? <div class="row"><div class="col-auto">Loading</div></div> : this.renderTripTable(this.state.trips);
 
         return (
             <div>
-                <h1 id="tabelLabel" >Trips</h1>
+                <h1>Trips</h1>
+                <input class="form-control mb-4" type="text" placeholder="Search Trips" onKeyUp={this.search} />
                 {contents}
             </div>
         );
@@ -30,29 +31,29 @@ export class Trips extends Component {
 
     renderTripTable(trips) {
         return (
-            <div>
-               <input class="form-control mb-4" id="tripSearch" type="text" placeholder="Search Trips" onKeyUp={this.search} />
-                <table className='table table-striped' aria-labelledby="tabelLabel">
-                    <thead>
-                        <tr>
-                            <th>Location</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Modify</th>
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Location</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Modify</th>
+                    </tr>
+                </thead>
+                <tbody ref={ref => this.tripsTable = ref}>
+                    {trips.map(trip =>
+                        <tr key={trip.id}>
+                            <td>{trip.location}</td>
+                            <td>{this.convertDate(trip.startDate)}</td>
+                            <td>{this.convertDate(trip.endDate)}</td>
+                            <td>
+                                <button type="button" class="btn btn-warning mr-1" onClick={this.edit.bind(this, trip.id)}>Edit</button>
+                                <button type="button" class="btn btn-danger" onClick={this.delete.bind(this, trip.id)}>Delete</button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody id="trips">
-                        {trips.map(trip =>
-                            <tr key={trip.id}>
-                                <td>{trip.location}</td>
-                                <td>{this.convertDate(trip.startDate)}</td>
-                                <td>{this.convertDate(trip.endDate)}</td>
-                                <td class="text-nowrap"><button type="button" class="btn btn-warning mr-1" onClick={this.edit}>Edit</button><button type="button" class="btn btn-danger" onClick={this.delete}>Delete</button></td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-             </div>
+                    )}
+                </tbody>
+            </table>
         );
     }
 
@@ -67,16 +68,37 @@ export class Trips extends Component {
     }
 
     search(event) {
+        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the search field
+        const rows = this.tripsTable?.getElementsByTagName("tr");
+
+        if (!rows)
+        {
+            return; // No rows to filter
+        }
+
+        // Loop through all table rows and hide those who don't match the search query
+        for (let i = 0; i < rows.length; i++)
+        {
+            const data = rows[i].textContent || rows[i].innerText;
+
+            if (data.toUpperCase().indexOf(filter) > -1)
+            {
+                rows[i].style.display = "";
+            }
+            else
+            {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+
+    edit(key, event) {
+        alert("Edit button was pressed with key " + key);
         // TODO
     }
 
-    edit(event) {
-        alert("Edit button was pressed");
-        // TODO
-    }
-
-    delete(event) {
-        alert("Delete button was pressed");
+    delete(key, event) {
+        alert("Delete button was pressed with key " + key);
         // TODO
     }
 

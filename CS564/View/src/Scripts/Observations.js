@@ -8,8 +8,6 @@ export class Observations extends Component {
         this.state = { observations: [], loading: true };
 
         this.search = this.search.bind(this);
-        this.edit = this.edit.bind(this);
-        this.delete = this.delete.bind(this);
     }
 
     componentDidMount() {
@@ -17,11 +15,12 @@ export class Observations extends Component {
     }
 
     render() {
-        let contents = this.state.loading ? <p><em>Loading...</em></p> : this.renderObservationsTable(this.state.observations);
+        let contents = this.state.loading ? <div class="row"><div class="col-auto">Loading</div></div> : this.renderObservationsTable(this.state.observations);
 
         return (
             <div>
-                <h1 id="tabelLabel" >Observations</h1>
+                <h1>Observations</h1>
+                <input class="form-control mb-4" type="text" placeholder="Search Observations" onKeyUp={this.search} />
                 {contents}
             </div>
         );
@@ -29,33 +28,33 @@ export class Observations extends Component {
 
     renderObservationsTable(observations) {
         return (
-            <div>
-                <input class="form-control mb-4" id="tripSearch" type="text" placeholder="Search Observations" onKeyUp={this.search} />
-                <table className='table table-striped' aria-labelledby="tabelLabel">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Longitude</th>
-                            <th>Latitude</th>
-                            <th>Animal</th>
-                            <th>Comments</th>
-                            <th>Modify</th>
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Longitude</th>
+                        <th>Latitude</th>
+                        <th>Animal</th>
+                        <th>Comments</th>
+                        <th>Modify</th>
+                    </tr>
+                </thead>
+                <tbody ref={ref => this.observationsTable = ref}>
+                    {observations.map(observation =>
+                        <tr key={observation.id}>
+                            <td>{this.convertDate(observation.observationDate)}</td>
+                            <td>{observation.longitude}</td>
+                            <td>{observation.latitude}</td>
+                            <td>{observation.animal}</td>
+                            <td>{observation.comments}</td>
+                            <td>
+                                <button type="button" class="btn btn-warning mr-1" onClick={this.edit.bind(this, observation.id)}>Edit</button>
+                                <button type="button" class="btn btn-danger" onClick={this.delete.bind(this, observation.id)}>Delete</button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody id="observations">
-                        {observations.map(observation =>
-                            <tr key={observation.id}>
-                                <td>{this.convertDate(observation.observationDate)}</td>
-                                <td>{observation.longitude}</td>
-                                <td>{observation.latitude}</td>
-                                <td>{observation.animal}</td>
-                                <td>{observation.comments}</td>
-                                <td><button type="button" class="btn btn-warning mr-1" onClick={this.edit}>Edit</button><button type="button" class="btn btn-danger" onClick={this.delete}>Delete</button></td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                    )}
+                </tbody>
+            </table>
         );
     }
 
@@ -70,16 +69,39 @@ export class Observations extends Component {
     }
 
     search(event) {
+        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the search field
+        const rows = this.observationsTable?.getElementsByTagName("tr");
+
+        if (!rows)
+        {
+            return; // No rows to filter
+        }
+
+        // Loop through all table rows and hide those who don't match the search query
+        for (let i = 0; i < rows.length; i++)
+        {
+            const data = rows[i].textContent || rows[i].innerText;
+
+            if (data.toUpperCase().indexOf(filter) > -1)
+            {
+                rows[i].style.display = "";
+            }
+            else
+            {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+
+    edit(key, event) {
+        alert("Edit button was pressed with key " + key);
         // TODO
     }
 
-    edit(event) {
-        alert("Edit button was pressed");
-        // TODO
-    }
-
-    delete(event) {
-        alert("Delete button was pressed");
+    delete(key, event)
+    {
+        // await fetch('observation/' + key, { method: "DELETE" });
+        alert("Delete button was pressed with key " + key);
         // TODO
     }
 
