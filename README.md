@@ -4,6 +4,6 @@ How to install the run the application:
 
 2. Install node.js from https://nodejs.org/en/download/.
 
-3. Navigate to the root of the local repository using the command line. Type 'npm install' in the command line to install package dependancies. 
+3. Navigate to the root of the local repository using the command line. Type 'npm install' in the command line to install package dependancies. You may need to navigate to CS564\Views to install npm if it cannot locate the package.json file from the root. 
 
 At this point, you should be able to run the application successfully. 
