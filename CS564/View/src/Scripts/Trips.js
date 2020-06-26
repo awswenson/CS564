@@ -8,9 +8,6 @@ export class Trips extends Component {
         this.state = { trips: [], loading: true };
 
         this.search = this.search.bind(this);
-        this.edit = this.edit.bind(this);
-        this.delete = this.delete.bind(this);
-        this.convertDate = this.convertDate.bind(this);
     }
 
     componentDidMount() {
@@ -47,8 +44,8 @@ export class Trips extends Component {
                             <td>{this.convertDate(trip.startDate)}</td>
                             <td>{this.convertDate(trip.endDate)}</td>
                             <td>
-                                <button type="button" class="btn btn-warning mr-1" onClick={this.edit.bind(this, trip.id)}>Edit</button>
-                                <button type="button" class="btn btn-danger" onClick={this.delete.bind(this, trip.id)}>Delete</button>
+                                <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, trip.id)}>Edit</button>
+                                <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, trip.id)}>Delete</button>
                             </td>
                         </tr>
                     )}
@@ -92,14 +89,33 @@ export class Trips extends Component {
         }
     }
 
-    edit(key, event) {
-        alert("Edit button was pressed with key " + key);
+    onEditClicked(id, event) {
+        alert("Edit button was pressed with id " + id);
+        this.edit(id);
         // TODO
     }
 
-    delete(key, event) {
-        alert("Delete button was pressed with key " + key);
-        // TODO
+    async edit(id) {
+
+    }
+
+    onDeleteClicked(id, event) {
+        this.delete(id);
+    }
+
+    async delete(id) {
+        const response = await fetch('trips/' + id, { method: 'DELETE' });
+        const success = await response.json();
+
+        if (success)
+        {
+            const data = this.state.trips.filter(trip => trip.id !== id);
+            this.setState({ trips: data, loading: false });
+        }
+        else
+        {
+            // TODO
+        }
     }
 
     async popuplateTrips() {

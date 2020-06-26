@@ -18,5 +18,13 @@ namespace CS564.Controllers
         {
             _logger = logger;
         }
+
+        [HttpGet]
+        [Route("login")]
+        public string Login(string username, string password)
+        {
+            // TOOD
+            return "TOKEN";
+        }
     }
 }

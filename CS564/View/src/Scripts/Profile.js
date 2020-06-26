@@ -6,6 +6,9 @@ export class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = { loading: true };
+
+        this.onLoginClicked.bind(this);
+        this.onSubmitClicked.bind(this);
     }
 
     componentDidMount() {
@@ -47,7 +50,7 @@ export class Profile extends Component {
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary" onClick={this.onLoginClicked}>Login</button>
                 </form>
             </div>
         );
@@ -88,9 +91,34 @@ export class Profile extends Component {
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" onClick={this.onSubmitClicked}>Submit</button>
                 </form>
             </div>
         );
+    }
+
+    onLoginClicked(event)
+    {
+
+    }
+
+    onSubmitClicked(event)
+    {
+
+    }
+
+    async login(username, password)
+    {
+        const headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
+
+        const response = await fetch('login', {
+            method: 'GET',
+            headers: headers,
+        });
+
+        const token = await response.json();
+
+        localStorage.setItem('token', token);
     }
 }

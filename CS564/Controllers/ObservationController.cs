@@ -36,30 +36,27 @@ namespace CS564.Controllers
         }
 
         [HttpDelete]
-        [Route("/{key:int}")]
-        public HttpResponseMessage DeleteObservations(int key)
+        [Route("{id:int}")]
+        public bool DeleteObservations(int id)
         {
             // TODO
-
-            return new HttpResponseMessage();
+            return id == 1;
         }
 
         [HttpPut]
-        [Route("{key:int}")]
-        public HttpResponseMessage UpdateObservation(int key, Observation observation)
+        [Route("{id:int}")]
+        public bool UpdateObservation(int id, Observation observation)
         {
             // TOOD
-
-            return new HttpResponseMessage();
+            return true;
         }
 
         [HttpPut]
         [Route("")]
-        public HttpResponseMessage AddObservations(Observation observation)
+        public int AddObservations(Observation observation)
         {
             // TOOD
-
-            return new HttpResponseMessage();
+            return 45;
         }
     }
 }
