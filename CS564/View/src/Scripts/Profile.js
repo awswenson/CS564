@@ -7,8 +7,7 @@ export class Profile extends Component {
         super(props);
         this.state = { loading: true };
 
-        this.onLoginClicked.bind(this);
-        this.onSubmitClicked.bind(this);
+        this.onLogoutClicked = this.onLogoutClicked.bind(this);
     }
 
     componentDidMount() {
@@ -17,7 +16,16 @@ export class Profile extends Component {
 
     render() {
         return (
-            <p>Profile</p>
+            <div>
+                <p>Profile</p>
+                <button class="btn btn-primary mr-2" onClick={this.onLogoutClicked}>Logout</button>
+            </div>
         );
+    }
+
+    onLogoutClicked(event)
+    {
+        localStorage.setItem("token", "");
+        window.location.reload();
     }
 }

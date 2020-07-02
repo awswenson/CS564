@@ -1,13 +1,13 @@
 ﻿import React, { Component } from 'react';
 import { Link, Redirect } from "react-router-dom";
-import { useAuthentication } from '../Context/Authentication';
 
 export class Login extends Component {
     static displayName = Login.name;
 
     constructor(props) {
         super(props);
-        this.state = { loading: true, token: {}, isLoggedIn: false, isError: false, username: '', password: '' };
+
+        this.state = { loading: true, isLoggedIn: !!localStorage.getItem("token"), isError: false, username: '', password: '' };
 
         this.onLoginClicked = this.onLoginClicked.bind(this);
         this.onChangeUsername = this.onChangeUsername.bind(this);
@@ -15,11 +15,11 @@ export class Login extends Component {
     }
 
     componentDidMount() {
-        // TODO Get login tokens
+        this.setState({ isLoggedIn: !!this.context?.token });
     }
 
     render() {
-        return this.isLoggedIn ? this.renderRedirect() : this.renderMain();
+        return this.state.isLoggedIn ? this.renderRedirect() : this.renderMain();
     }
 
     renderRedirect() {
@@ -46,30 +46,30 @@ export class Login extends Component {
         return (
             <div>
                 <h1>Login</h1>
-                <form class="form-content" onSubmit={this.onLoginClicked}>
+                <form class="form-content">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="username">Username</label>
-                                <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} />
+                                <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} required />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="password">Password</label>
-                                <input id="password" type="password" class="form-control" placeholder="Password" value={this.state.password} onChange={this.onChangePassword} />
+                                <input id="password" type="password" class="form-control" placeholder="Password" value={this.state.password} onChange={this.onChangePassword} required />
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary mr-2">Login</button>
+                    <button class="btn btn-primary mr-2" onClick={this.onLoginClicked}>Login</button>
                     <Link to="/create">Don't have an account?</Link>
                 </form>
             </div>
         );
     }
 
-    onLoginClicked(event)
-    {
+    onLoginClicked(event) {
+        event.preventDefault(); // Prevent the page from refreshing
         this.login();
     }
 
@@ -83,17 +83,30 @@ export class Login extends Component {
 
     async login()
     {
-        //const headers = new Headers();
-        //headers.set('Authorization', 'Basic ' + btoa(this.state.username + ":" + this.state.password));
+        if (!this.state.username || !this.state.password)
+        {
+            return;
+        }
 
-        //const response = await fetch('login', {
-        //    method: 'GET', body: JSON.stringify({ username: this.state.username, password: this.state.password })
-        //});
+        const headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(this.state.username + ":" + this.state.password));
 
-        const token = "TOKEN"; //await response.json();
+        const response = await fetch('login', {
+            method: 'POST',
+            headers: headers,
+        });
 
-        const { setToken } = useAuthentication();
+        if (response.ok) // Login successfull 
+        {
+            const token = await response.text();
 
-        setToken(token);
+            localStorage.setItem("token", token); // Update local storage
+
+            this.setState({ isLoggedIn: true, isError: false }); 
+        }
+        else // Login unsuccessful
+        {
+            this.setState({ isLoggedIn: false, isError: true }); 
+        }
     }
 }

@@ -19,12 +19,12 @@ namespace CS564.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("login")]
-        public string Login(string username, string password)
+        public ActionResult<string> Login()
         {
             // TOOD
-            return "TOKEN";
+            return Ok("TOKEN");
         }
     }
 }

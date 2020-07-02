@@ -1,5 +1,5 @@
-import React, { Component, useState } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import React, { Component, createContext } from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Home } from './Home';
 import { Layout } from './Layout';
 import { Search } from './Search';
@@ -8,8 +8,6 @@ import { Trips } from './Trips';
 import { Profile } from './Profile';
 import { Login } from './Login';
 import { CreateAccount } from './CreateAccount';
-import PrivateRoute from '../Context/PrivateRoute';
-import { AuthenticationContext } from '../Context/Authentication';
 
 import '../Styles/App.css'
 
@@ -19,21 +17,24 @@ export default class App extends Component {
     constructor(props)
     {
         super(props);
-        this.state = { loading: true, token: JSON.parse(localStorage.getItem("token")) };
+        this.state = { loading: true, token: localStorage.getItem("token") };
 
-        this.setToken = this.setToken.bind(this);
+        this.isLoggedIn = this.isLoggedIn.bind(this);
     }
 
-    render() {
+    render()
+    {
+        const AuthenticationContext = createContext({ token: this.state.token, setToken: this.setToken });
+
         return (
             <AuthenticationContext.Provider value={{ token: this.state.token, setToken: this.setToken }}> 
                 <Router>
                     <Layout>
                         <Route exact path='/' component={Home} />
                         <Route path='/search' component={Search} />
-                        <PrivateRoute path='/observations' component={Observations} />
-                        <PrivateRoute path='/trips' component={Trips} />
-                        <PrivateRoute path='/profile' component={Profile} />
+                        <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
+                        <Route path='/trips' render={props => this.isLoggedIn() ? <Trips {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
+                        <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
                         <Route path='/login' component={Login} />
                         <Route path='/create' component={CreateAccount} />
                     </Layout>
@@ -42,8 +43,9 @@ export default class App extends Component {
         );
     }
 
-    setToken(token) {
-        localStorage.setItem("token", JSON.stringify(token)); // Update local storage
-        this.setState({ token: token }); // Update the application state
+    isLoggedIn()
+    {
+        return !!localStorage.getItem("token");
     }
+
 }
