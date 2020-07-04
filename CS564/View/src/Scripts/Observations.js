@@ -7,7 +7,7 @@ export class Observations extends Component {
         super(props);
         this.state = { observations: [], loading: true };
 
-        this.search = this.search.bind(this);
+        this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
     }
 
     componentDidMount() {
@@ -20,7 +20,6 @@ export class Observations extends Component {
         return (
             <div>
                 <h1>Observations</h1>
-                <input class="form-control mb-4" type="text" placeholder="Search Observations" onKeyUp={this.search} />
                 {contents}
             </div>
         );
@@ -28,33 +27,36 @@ export class Observations extends Component {
 
     renderObservationsTable(observations) {
         return (
-            <table class="table table-hover">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Longitude</th>
-                        <th>Latitude</th>
-                        <th>Animal</th>
-                        <th>Comments</th>
-                        <th>Modify</th>
-                    </tr>
-                </thead>
-                <tbody ref={ref => this.observationsTable = ref}>
-                    {observations.map(observation =>
-                        <tr key={observation.id}>
-                            <td>{this.convertDate(observation.observationDate)}</td>
-                            <td>{observation.longitude}</td>
-                            <td>{observation.latitude}</td>
-                            <td>{observation.animal}</td>
-                            <td>{observation.comments}</td>
-                            <td>
-                                <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation.id)}>Edit</button>
-                                <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, observation.id)}>Delete</button>
-                            </td>
+            <div>
+                <input class="form-control mb-4 sortable" type="text" placeholder="Filter Observations" onKeyUp={this.onKeyUpFilter} />
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Animal</th>
+                            <th>Comments</th>
+                            <th>Modify</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody ref={ref => this.observationsTable = ref}>
+                        {observations.map(observation =>
+                            <tr key={observation.id}>
+                                <td>{this.convertDate(observation.observationDate)}</td>
+                                <td>{observation.latitude}</td>
+                                <td>{observation.longitude}</td>
+                                <td>{observation.animal}</td>
+                                <td>{observation.comments}</td>
+                                <td>
+                                    <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation.id)}>Edit</button>
+                                    <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, observation.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         );
     }
 
@@ -68,7 +70,7 @@ export class Observations extends Component {
         return date ? date.toLocaleDateString() : "";
     }
 
-    search(event) {
+    onKeyUpFilter(event) {
         const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the search field
         const rows = this.observationsTable?.getElementsByTagName("tr");
 
@@ -123,7 +125,7 @@ export class Observations extends Component {
     }
 
     async popuplateObservations() {
-        const response = await fetch('observation');
+        const response = await fetch('observation', { method: 'GET' });
         const data = await response.json();
         this.setState({ observations: data, loading: false });
     }

@@ -4,7 +4,6 @@ import { Home } from './Home';
 import { Layout } from './Layout';
 import { Search } from './Search';
 import { Observations } from './Observations';
-import { Trips } from './Trips';
 import { Profile } from './Profile';
 import { Login } from './Login';
 import { CreateAccount } from './CreateAccount';
@@ -33,7 +32,6 @@ export default class App extends Component {
                         <Route exact path='/' component={Home} />
                         <Route path='/search' component={Search} />
                         <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
-                        <Route path='/trips' render={props => this.isLoggedIn() ? <Trips {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
                         <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
                         <Route path='/login' component={Login} />
                         <Route path='/create' component={CreateAccount} />

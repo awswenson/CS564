@@ -1,10 +1,12 @@
 ﻿import React, { Component } from 'react';
 import { Link, Redirect } from "react-router-dom";
 
-export class Login extends Component {
+export class Login extends Component 
+{
     static displayName = Login.name;
 
-    constructor(props) {
+    constructor(props) 
+    {
         super(props);
 
         this.state = { loading: true, isLoggedIn: !!localStorage.getItem("token"), isError: false, username: '', password: '' };
@@ -14,15 +16,18 @@ export class Login extends Component {
         this.onChangePassword = this.onChangePassword.bind(this);
     }
 
-    componentDidMount() {
+    componentDidMount() 
+    {
         this.setState({ isLoggedIn: !!this.context?.token });
     }
 
-    render() {
+    render() 
+    {
         return this.state.isLoggedIn ? this.renderRedirect() : this.renderMain();
     }
 
-    renderRedirect() {
+    renderRedirect()
+    {
         return (
             <Redirect to={this.props?.location?.state?.referrer || '/'} />
         );
@@ -38,11 +43,13 @@ export class Login extends Component {
         );
     }
 
-    renderError() {
+    renderError() 
+    {
         return this.state.isError ? <div class="alert alert-danger" role="alert">The username or password provided were incorrect!</div> : null; 
     }
 
-    renderLogin() {
+    renderLogin() 
+    {
         return (
             <div>
                 <h1>Login</h1>
@@ -68,16 +75,19 @@ export class Login extends Component {
         );
     }
 
-    onLoginClicked(event) {
+    onLoginClicked(event) 
+    {
         event.preventDefault(); // Prevent the page from refreshing
         this.login();
     }
 
-    onChangeUsername(event) {
+    onChangeUsername(event) 
+    {
         this.setState({ username: event?.target?.value });
     }
 
-    onChangePassword(event) {
+    onChangePassword(event) 
+    {
         this.setState({ password: event?.target?.value });
     }
 
