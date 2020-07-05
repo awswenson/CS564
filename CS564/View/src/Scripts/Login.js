@@ -54,22 +54,22 @@ export class Login extends Component
             <div>
                 <h1>Login</h1>
                 <form class="form-content">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="username">Username</label>
-                                <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} required />
-                            </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="username">Username</label>
+                            <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} required />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input id="password" type="password" class="form-control" placeholder="Password" value={this.state.password} onChange={this.onChangePassword} required />
-                            </div>
+                        <div class="form-group col-md-6">
+                            <label for="password">Password</label>
+                            <input id="password" type="password" class="form-control" placeholder="Password" value={this.state.password} onChange={this.onChangePassword} required />
                         </div>
                     </div>
-                    <button class="btn btn-primary mr-2" onClick={this.onLoginClicked}>Login</button>
-                    <Link to="/create">Don't have an account?</Link>
+                    <div class="form-row">
+                        <div class="col">
+                            <button class="btn btn-primary mr-2" onClick={this.onLoginClicked}>Login</button>
+                            <Link to="/create">Don't have an account?</Link>
+                        </div>
+                    </div>
                 </form>
             </div>
         );

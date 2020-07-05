@@ -96,32 +96,34 @@ export class Search extends Component {
     {
         return (
             <form class="form-content">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="date">Date</label>
-                            <input id="date" type="date" class="form-control" placeholder="Date" onChange={this.onChangeDate} />
-                        </div>
-                        <div class="form-group">
-                            <label for="animal">Animal</label>
-                            <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
-                        </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="date">Date</label>
+                        <input id="date" type="date" class="form-control" placeholder="Date" onChange={this.onChangeDate} />
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="county">County</label>
-                            <input id="county" type="text" class="form-control" placeholder="County" onChange={this.onChangeCounty} />
-                        </div>
-                        <div class="form-group">
-                            <label for="state">State</label>
-                            <select id="state" class="form-control" searchable="State" onChange={this.onChangeState}>
-                                <option value="" disabled selected>State</option>
-                                {this.states.map(state =>
-                                    <option value={state}>{state}</option>
-                                )}
-                            </select>
-                        </div>
-                        <button class="btn btn-primary mr-2 float-right" onClick={this.onSearchClicked}>Search</button>
+                    <div class="form-group col-md-3">
+                        <label for="county">County</label>
+                        <input id="county" type="text" class="form-control" placeholder="County" onChange={this.onChangeCounty} />
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="state">State</label>
+                        <select id="state" class="form-control" searchable="State" onChange={this.onChangeState}>
+                            <option value="" disabled selected>State</option>
+                            {this.states.map(state =>
+                                <option value={state}>{state}</option>
+                            )}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="animal">Animal</label>
+                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <button class="btn btn-primary float-right" onClick={this.onSearchClicked}>Search</button>
                     </div>
                 </div>
             </form>

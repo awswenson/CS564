@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CS564.Models;
+﻿using CS564.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Text;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -56,13 +53,6 @@ namespace CS564.Controllers
             };
         }
 
-        /// <summary>
-        /// Given the
-        /// </summary>
-        /// <param name="authHeader"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
         private bool GetUsernamePasswordFromAuthHeader(string authHeader, out string username, out string password)
         {
             username = string.Empty;

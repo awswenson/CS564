@@ -1,10 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using CS564.Models;
+﻿using CS564.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CS564.Controllers
 {
@@ -37,26 +42,64 @@ namespace CS564.Controllers
 
         [HttpDelete]
         [Route("{id:int}")]
-        public bool DeleteObservations(int id)
+        public ActionResult DeleteObservations(int id)
         {
             // TODO
-            return id == 1;
+            // We should return NotFound() if we cannot find the observation in the database
+
+            return Ok();
         }
 
         [HttpPut]
         [Route("{id:int}")]
-        public bool UpdateObservation(int id, Observation observation)
+        public async Task<ActionResult> UpdateObservation(int id)
         {
-            // TOOD
-            return true;
+            Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
+
+            if (observation == null)
+            {
+                return BadRequest();
+            }
+
+            // TODO
+            // We should return NotFound() if we cannot find the observation in the database
+
+            return Ok();
         }
 
         [HttpPut]
         [Route("")]
-        public int AddObservations(Observation observation)
+        public async Task<ActionResult<int>> AddObservations()
         {
-            // TOOD
-            return 45;
+            Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
+
+            if (observation == null)
+            {
+                return BadRequest();
+            }
+
+            // TODO
+
+            return Ok(45);
+        }
+
+        private async Task<Observation> GetObservationFromBody(Stream body)
+        {
+            try
+            {
+                using (var streamReader = new HttpRequestStreamReader(body, Encoding.UTF8))
+                {
+                    using (var jsonReader = new JsonTextReader(streamReader))
+                    {
+                        JObject json = await JObject.LoadAsync(jsonReader);
+                        return json.ToObject<Observation>();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

@@ -75,8 +75,12 @@ export class CreateAccount extends Component
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary mr-2" onClick={this.onSubmitClicked}>Submit</button>
-                <Link to="/login">Already have an account?</Link>
+                <div class="form-row">
+                    <div class="col">
+                        <button class="btn btn-primary mr-2" onClick={this.onSubmitClicked}>Submit</button>
+                        <Link to="/login">Already have an account?</Link>
+                    </div>
+                </div>
             </form>
         );
     }
