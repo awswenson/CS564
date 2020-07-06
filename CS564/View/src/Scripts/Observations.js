@@ -7,7 +7,7 @@ export class Observations extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { observations: [], loading: true, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '' };
+        this.state = { observations: [], loading: true, id: -1, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '', updateObservation: false };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
@@ -16,6 +16,8 @@ export class Observations extends Component
         this.onChangeLongitude = this.onChangeLongitude.bind(this);
         this.onChangeComments = this.onChangeComments.bind(this);
         this.onAddObservationClicked = this.onAddObservationClicked.bind(this);
+        this.onUpdateObservationClicked = this.onUpdateObservationClicked.bind(this);
+        this.onCancelUpdateClicked = this.onCancelUpdateClicked.bind(this);
     }
 
     componentDidMount() 
@@ -70,7 +72,9 @@ export class Observations extends Component
                 </div>
                 <div class="form-row">
                     <div class="col">
-                        <button class="btn btn-primary float-right" onClick={this.onAddObservationClicked}>Add Observation</button>
+                        <button class="btn btn-success float-right" style={{ display: this.state.updateObservation ? 'none' : '' }} onClick={this.onAddObservationClicked}>Add Observation</button>
+                        <button class="btn btn-danger float-right" style={{ display: this.state.updateObservation ? '' : 'none' }} onClick={this.onCancelUpdateClicked}>Cancel</button>
+                        <button class="btn btn-warning float-right mr-1" style={{ display: this.state.updateObservation ? '' : 'none' }} onClick={this.onUpdateObservationClicked}>Update Observation</button>
                     </div>
                 </div>
             </form>
@@ -112,7 +116,7 @@ export class Observations extends Component
                                     <td>{observation.animal}</td>
                                     <td>{observation.comments}</td>
                                     <td>
-                                        <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation.id)}>Edit</button>
+                                        <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation)}>Edit</button>
                                         <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, observation.id)}>Delete</button>
                                     </td>
                                 </tr>
@@ -153,65 +157,36 @@ export class Observations extends Component
     {
         event.preventDefault(); // Prevent the page from refreshing
 
-        if (this.validateAddObservation())
+        if (this.validateObservation())
         {
             this.add();
         }
     }
 
-    async add()
+    onUpdateObservationClicked(event)
     {
-        const observation = {
-            id: '-1',
-            observationDate: this.state.date,
-            latitude: this.state.latitude,
-            longitude: this.state.longitude,
-            animal: this.state.animal,
-            comments: this.state.comments,
-        };
+        event.preventDefault(); // Prevent the page from refreshing
 
-        const response = await fetch('observation', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(observation)
+        if (this.validateObservation())
+        {
+            this.update();
+        }
+    }
+
+    onCancelUpdateClicked(event)
+    {
+        event.preventDefault(); // Prevent the page from refreshing
+
+        this.setState({
+            id: -1,
+            date: '',
+            latitude: '',
+            longitude: '',
+            animal: '',
+            comments: '',
+            errorMessage: '',
+            updateObservation: false
         });
-
-        if (response.ok)
-        {
-            observation.id = await response.text();
-
-            const data = this.state.observations.concat(observation);
-            this.setState({ observations: data, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '' });
-        }
-        else
-        {
-            // TODO
-        }
-    }
-
-    validateAddObservation()
-    {
-        if (!this.state.date)
-        {
-            this.setState({ errorMessage: "Missing required inputs!" });
-            return false;
-        }
-
-        this.setState({ errorMessage: "" });
-        return true;
-    }
-
-    convertDate(dateTime) 
-    {
-        if (!dateTime) {
-            return "";
-        }
-
-        const date = new Date(Date.parse(dateTime));
-
-        return date ? date.toLocaleDateString() : "";
     }
 
     onKeyUpFilter(event) 
@@ -240,21 +215,125 @@ export class Observations extends Component
         }
     }
 
-    onEditClicked(id, event) 
+    onEditClicked(observation, event) 
     {
-        alert("Edit button was pressed with id " + id);
-        this.edit(id);
-        // TODO
-    }
+        if (!observation)
+        {
+            return;
+        }
 
-    async edit(id) 
-    {
+        const date = new Date(observation.observationDate);
+        const day = ("0" + date.getDate()).slice(-2);
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
 
+        this.setState({
+            id: observation.id,
+            date: date.getFullYear() + "-" + (month) + "-" + (day),
+            latitude: observation.latitude,
+            longitude: observation.longitude,
+            animal: observation.animal,
+            comments: observation.comments,
+            errorMessage: '',
+            updateObservation: true,
+        });
     }
 
     onDeleteClicked(id, event) 
     {
         this.delete(id);
+    }
+
+    async add()
+    {
+        const observation = {
+            id: this.state.id,
+            observationDate: this.state.date,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude,
+            animal: this.state.animal,
+            comments: this.state.comments,
+        };
+
+        const response = await fetch('observation', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(observation)
+        });
+
+        if (response.ok)
+        {
+            observation.id = await response.text();
+
+            this.state.observations.push(observation);
+
+            this.setState({
+                observations: this.state.observations,
+                id: -1,
+                date: '',
+                latitude: '',
+                longitude: '',
+                animal: '',
+                comments: '',
+                errorMessage: '',
+                updateObservation: false
+            });
+        }
+        else
+        {
+            // TODO
+        }
+    }
+
+    async update()
+    {
+        const observation = {
+            id: this.state.id,
+            observationDate: this.state.date,
+            latitude: this.state.latitude,
+            longitude: this.state.longitude,
+            animal: this.state.animal,
+            comments: this.state.comments,
+        };
+
+        const response = await fetch('observation/' + this.state.id, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(observation)
+        });
+
+        if (response.ok)
+        {
+            const index = this.state.observations.findIndex(observation => observation.id === this.state.id);
+
+            if (index !== -1)
+            {
+                this.state.observations[index] = observation;
+            }
+            else
+            {
+                this.state.observations.push(observation);
+            }
+
+            this.setState({
+                observations: this.state.observations,
+                id: -1,
+                date: '',
+                latitude: '',
+                longitude: '',
+                animal: '',
+                comments: '',
+                errorMessage: '',
+                updateObservation: false
+            });
+        }
+        else
+        {
+            // TODO
+        }
     }
 
     async delete(id) 
@@ -264,7 +343,8 @@ export class Observations extends Component
         if (response.ok)
         {
             const data = this.state.observations.filter(observation => observation.id !== id);
-            this.setState({ observations: data, loading: false });
+
+            this.setState({ observations: data });
         }
         else
         {
@@ -272,10 +352,35 @@ export class Observations extends Component
         }
     }
 
+    validateObservation()
+    {
+        if (!this.state.date)
+        {
+            this.setState({ errorMessage: "Missing required inputs!" });
+            return false;
+        }
+
+        this.setState({ errorMessage: "" });
+        return true;
+    }
+
+    convertDate(dateTime) 
+    {
+        if (!dateTime) 
+        {
+            return "";
+        }
+
+        const date = new Date(dateTime);
+
+        return date ? date.toLocaleDateString() : "";
+    }
+
     async popuplateObservations() 
     {
         const response = await fetch('observation', { method: 'GET' });
         const data = await response.json();
+
         this.setState({ observations: data, loading: false });
     }
 }

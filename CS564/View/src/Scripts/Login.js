@@ -9,7 +9,7 @@ export class Login extends Component
     {
         super(props);
 
-        this.state = { loading: true, isLoggedIn: !!localStorage.getItem("token"), isError: false, username: '', password: '' };
+        this.state = { isLoggedIn: !!localStorage.getItem("token"), isError: false, username: '', password: '' };
 
         this.onLoginClicked = this.onLoginClicked.bind(this);
         this.onChangeUsername = this.onChangeUsername.bind(this);
@@ -67,7 +67,7 @@ export class Login extends Component
                     <div class="form-row">
                         <div class="col">
                             <button class="btn btn-primary mr-2" onClick={this.onLoginClicked}>Login</button>
-                            <Link to="/create">Don't have an account?</Link>
+                            <Link to={{ pathname: "/create", state: { referrer: this.props.location } }}>Don't have an account?</Link>
                         </div>
                     </div>
                 </form>

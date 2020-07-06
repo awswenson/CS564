@@ -192,7 +192,7 @@ export class Search extends Component {
             return "";
         }
 
-        const date = new Date(Date.parse(dateTime));
+        const date = new Date(dateTime);
 
         return date ? date.toLocaleDateString() : "";
     }

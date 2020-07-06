@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 export class CreateAccount extends Component 
 {
@@ -8,7 +8,7 @@ export class CreateAccount extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { loading: true, firstName: '', lastName: '', email: '', username: '', password: '', confirmPassword: '', errorMessage: '' };
+        this.state = { isLoggedIn: !!localStorage.getItem("token"), firstName: '', lastName: '', email: '', username: '', password: '', confirmPassword: '', errorMessage: '' };
 
         this.onSubmitClicked = this.onSubmitClicked.bind(this);
         this.createAccount = this.createAccount.bind(this);
@@ -26,6 +26,18 @@ export class CreateAccount extends Component
     }
 
     render() 
+    {
+        return this.state.isLoggedIn ? this.renderRedirect() : this.renderMain();
+    }
+
+    renderRedirect()
+    {
+        return (
+            <Redirect to={this.props?.location?.state?.referrer || '/'} />
+        );
+    }
+
+    renderMain()
     {
         return (
             <div>
@@ -78,7 +90,7 @@ export class CreateAccount extends Component
                 <div class="form-row">
                     <div class="col">
                         <button class="btn btn-primary mr-2" onClick={this.onSubmitClicked}>Submit</button>
-                        <Link to="/login">Already have an account?</Link>
+                        <Link to={{ pathname: "/login", state: { referrer: this.props.location } }}>Already have an account?</Link>
                     </div>
                 </div>
             </form>
@@ -115,9 +127,37 @@ export class CreateAccount extends Component
         return true;
     }
 
-    createAccount()
+    async createAccount()
     {
+        const user = {
+            id: '',
+            password: '',
+            firstName: this.state.firstName,
+            lastName: this.state.lastName,
+            email: this.state.email,
+        };
 
+        const headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(this.state.username + ":" + this.state.password));
+
+        const response = await fetch('create', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(user)
+        });
+
+        if (response.ok) // Account created successfull 
+        {
+            const token = await response.text();
+
+            localStorage.setItem("token", token); // Update local storage
+
+            this.setState({ isLoggedIn: true, errorMessage: '' });
+        }
+        else 
+        {
+            this.setState({ isLoggedIn: false, isError: "Error creating account. Please try again." });
+        }
     }
 
     onChangeFirstName(event)

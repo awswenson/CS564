@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { Redirect } from "react-router-dom";
 
 export class Profile extends Component 
 {
@@ -7,7 +8,7 @@ export class Profile extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { loading: true, profile: [] };
+        this.state = { loading: true, profile: [], isLoggedIn: true };
 
         this.onLogoutClicked = this.onLogoutClicked.bind(this);
     }
@@ -18,6 +19,18 @@ export class Profile extends Component
     }
 
     render() 
+    {
+        return this.state.isLoggedIn ? this.renderMain() : this.renderRedirect();
+    }
+
+    renderRedirect()
+    {
+        return (
+            <Redirect to="/login" />
+        );
+    }
+
+    renderMain()
     {
         return (
             <div>
@@ -79,6 +92,6 @@ export class Profile extends Component
     onLogoutClicked(event)
     {
         localStorage.setItem("token", "");
-        window.location.reload();
+        this.setState({ isLoggedIn: false });
     }
 }
