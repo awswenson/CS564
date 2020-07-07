@@ -73,7 +73,7 @@ export class Profile extends Component
                             </div>
                             <div class="form-group">
                                 <label for="username">Username</label>
-                                <input id="username" type="text" class="form-control" value={this.state.profile.id} readOnly />
+                                <input id="username" type="text" class="form-control" value={this.state.profile.userID} readOnly />
                             </div>
                         </div>
                     </div>

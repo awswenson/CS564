@@ -1,10 +1,11 @@
+using CS564.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 namespace CS564
 {
@@ -27,6 +28,11 @@ namespace CS564
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "View/build";
+            });
+
+            services.AddDbContext<DatabaseContext>(options => 
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
         }
 

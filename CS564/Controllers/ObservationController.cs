@@ -1,4 +1,5 @@
-﻿using CS564.Models;
+﻿using CS564.Database;
+using CS564.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -18,10 +19,12 @@ namespace CS564.Controllers
     public class ObservationController : ControllerBase
     {
         private readonly ILogger<ObservationController> _logger;
+        private readonly DatabaseContext _context;
 
-        public ObservationController(ILogger<ObservationController> logger)
+        public ObservationController(ILogger<ObservationController> logger, DatabaseContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet]

@@ -1,4 +1,5 @@
-﻿using CS564.Models;
+﻿using CS564.Database;
+using CS564.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -10,18 +11,18 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CS564.Controllers
 {
     [ApiController]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
+        private readonly DatabaseContext _context;
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(ILogger<UserController> logger, DatabaseContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         [HttpPost]
@@ -49,7 +50,7 @@ namespace CS564.Controllers
         {
             return new User()
             {
-                ID = "Digoramma",
+                UserID = "Digoramma",
                 FirstName = "Alex",
                 LastName = "Swenson",
                 Email = "awswenson@wisc.edu",
@@ -77,7 +78,7 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            user.ID = username;
+            user.UserID = username;
             user.Password = password;
 
             // TODO - Add the user to the database

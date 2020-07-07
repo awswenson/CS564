@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+﻿using CS564.Database;
 using CS564.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CS564.Controllers
 {
@@ -13,10 +13,12 @@ namespace CS564.Controllers
     public class SearchController : ControllerBase
     {
         private readonly ILogger<SearchController> _logger;
+        private readonly DatabaseContext _context;
 
-        public SearchController(ILogger<SearchController> logger)
+        public SearchController(ILogger<SearchController> logger, DatabaseContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         [HttpGet]
