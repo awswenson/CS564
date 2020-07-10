@@ -254,11 +254,12 @@ export class Observations extends Component
             comments: this.state.comments,
         };
 
+        const headers = new Headers();
+        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+
         const response = await fetch('observation', {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify(observation)
         });
 
@@ -297,11 +298,12 @@ export class Observations extends Component
             comments: this.state.comments,
         };
 
+        const headers = new Headers();
+        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+
         const response = await fetch('observation/' + this.state.id, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: headers,
             body: JSON.stringify(observation)
         });
 
@@ -338,12 +340,17 @@ export class Observations extends Component
 
     async delete(id) 
     {
-        const response = await fetch('observation/' + id, { method: 'DELETE' });
+        const headers = new Headers();
+        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+
+        const response = await fetch('observation/' + id, {
+            method: 'DELETE',
+            headers: headers
+        });
 
         if (response.ok)
         {
             const data = this.state.observations.filter(observation => observation.id !== id);
-
             this.setState({ observations: data });
         }
         else
@@ -378,9 +385,22 @@ export class Observations extends Component
 
     async popuplateObservations() 
     {
-        const response = await fetch('observation', { method: 'GET' });
-        const data = await response.json();
+        const headers = new Headers();
+        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
 
-        this.setState({ observations: data, loading: false });
+        const response = await fetch('observation', {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (response.ok)
+        {
+            const data = await response.json();
+            this.setState({ observations: data, loading: false });
+        }
+        else
+        {
+            // TODO
+        }
     }
 }

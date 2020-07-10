@@ -84,9 +84,23 @@ export class Profile extends Component
 
     async loadUser()
     {
-        const response = await fetch('profile', { method: 'GET' });
-        const data = await response.json();
-        this.setState({ profile: data, loading: false });
+        const headers = new Headers();
+        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+
+        const response = await fetch('profile', {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (response.ok)
+        {
+            const data = await response.json();
+            this.setState({ profile: data, loading: false });
+        }
+        else
+        {
+            // TODO
+        }
     }
 
     onLogoutClicked(event)

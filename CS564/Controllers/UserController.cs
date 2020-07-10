@@ -46,15 +46,22 @@ namespace CS564.Controllers
 
         [HttpGet]
         [Route("profile")]
-        public User GetProfile()
+        public ActionResult<User> GetProfile()
         {
-            return new User()
+            if (!this.GetUserFromAuthHeader(HttpContext.Request.Headers["Authorization"], out User user))
+            {
+                return Unauthorized();
+            }
+
+            user = new User() // For testing purposes
             {
                 UserID = "Digoramma",
                 FirstName = "Alex",
                 LastName = "Swenson",
                 Email = "awswenson@wisc.edu",
             };
+
+            return Ok(user);
         }
 
         [HttpPost]
@@ -118,6 +125,24 @@ namespace CS564.Controllers
                 int seperatorIndex = usernamePassword.IndexOf(':');
                 username = usernamePassword.Substring(0, seperatorIndex);
                 password = usernamePassword.Substring(seperatorIndex + 1);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private bool GetUserFromAuthHeader(string authHeader, out User user)
+        {
+            user = null;
+
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                string token = authHeader.Substring("Token ".Length).Trim();
+
+                // TOKEN Get the user from the database using the token
 
                 return true;
             }

@@ -29,24 +29,36 @@ namespace CS564.Controllers
 
         [HttpGet]
         [Route("")]
-        public IEnumerable<Observation> GetAllObservations()
+        public ActionResult<IEnumerable<Observation>> GetAllObservations()
         {
-            return Enumerable.Range(1, 5).Select(index => new Observation
+            if (!this.GetUserFromAuthHeader(HttpContext.Request.Headers["Authorization"], out User user))
+            {
+                return Unauthorized();
+            }
+
+            IEnumerable<Observation> observations = Enumerable.Range(1, 5).Select(index => new Observation
             {
                 ID = index,
-                ObservationDate = DateTime.Now.AddDays(-index),
+                ObservationDate = DateTime.Now.AddDays(-index).Date,
                 Latitude = "Here's the lattitude",
                 Longitude = "Here's the longitude",
                 Animal = "Whitetail Deer",
                 Comments = "These are some comments",
             })
             .ToArray();
+
+            return Ok(observations);
         }
 
         [HttpDelete]
         [Route("{id:int}")]
         public ActionResult DeleteObservations(int id)
         {
+            if (!this.GetUserFromAuthHeader(HttpContext.Request.Headers["Authorization"], out User user))
+            {
+                return Unauthorized();
+            }
+
             // TODO
             // We should return NotFound() if we cannot find the observation in the database
 
@@ -57,6 +69,11 @@ namespace CS564.Controllers
         [Route("{id:int}")]
         public async Task<ActionResult> UpdateObservation(int id)
         {
+            if (!this.GetUserFromAuthHeader(HttpContext.Request.Headers["Authorization"], out User user))
+            {
+                return Unauthorized();
+            }
+
             Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
 
             if (observation == null)
@@ -74,6 +91,11 @@ namespace CS564.Controllers
         [Route("")]
         public async Task<ActionResult<int>> AddObservations()
         {
+            if (!this.GetUserFromAuthHeader(HttpContext.Request.Headers["Authorization"], out User user))
+            {
+                return Unauthorized();
+            }
+
             Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
 
             if (observation == null)
@@ -102,6 +124,24 @@ namespace CS564.Controllers
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private bool GetUserFromAuthHeader(string authHeader, out User user)
+        {
+            user = null;
+
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                string token = authHeader.Substring("Token ".Length).Trim();
+
+                // TOKEN Get the user from the database using the token
+
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

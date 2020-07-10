@@ -23,10 +23,10 @@ export default class App extends Component {
 
     render()
     {
-        const AuthenticationContext = createContext({ token: this.state.token, setToken: this.setToken });
+        const AuthenticationContext = createContext(this.state.token);
 
         return (
-            <AuthenticationContext.Provider value={{ token: this.state.token, setToken: this.setToken }}> 
+            <AuthenticationContext.Provider value={this.state.token}> 
                 <Router>
                     <Layout>
                         <Route exact path='/' component={Home} />
@@ -45,5 +45,4 @@ export default class App extends Component {
     {
         return !!localStorage.getItem("token");
     }
-
 }
