@@ -191,7 +191,7 @@ export class Observations extends Component
 
     onKeyUpFilter(event) 
     {
-        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the search field
+        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the trend field
         const rows = this.observationsTable?.getElementsByTagName("tr");
 
         if (!rows)
@@ -199,7 +199,7 @@ export class Observations extends Component
             return; // No rows to filter
         }
 
-        // Loop through all table rows and hide those who don't match the search query
+        // Loop through all table rows and hide those who don't match the trend query
         for (let i = 0; i < rows.length; i++)
         {
             const data = rows[i].textContent || rows[i].innerText;
