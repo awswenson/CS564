@@ -31,8 +31,8 @@ export default class App extends Component {
                     <Layout>
                         <Route exact path='/' component={Home} />
                         <Route path='/search' component={Search} />
-                        <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
-                        <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: "/login", state: { referrer: props.location } }} />} />
+                        <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
+                        <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
                         <Route path='/login' component={Login} />
                         <Route path='/create' component={CreateAccount} />
                     </Layout>

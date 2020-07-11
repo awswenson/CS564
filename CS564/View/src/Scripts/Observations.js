@@ -255,7 +255,7 @@ export class Observations extends Component
         };
 
         const headers = new Headers();
-        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+        headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
         const response = await fetch('observation', {
             method: 'PUT',
@@ -299,7 +299,7 @@ export class Observations extends Component
         };
 
         const headers = new Headers();
-        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+        headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
         const response = await fetch('observation/' + this.state.id, {
             method: 'PUT',
@@ -341,7 +341,7 @@ export class Observations extends Component
     async delete(id) 
     {
         const headers = new Headers();
-        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+        headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
         const response = await fetch('observation/' + id, {
             method: 'DELETE',
@@ -386,7 +386,7 @@ export class Observations extends Component
     async popuplateObservations() 
     {
         const headers = new Headers();
-        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+        headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
         const response = await fetch('observation', {
             method: 'GET',

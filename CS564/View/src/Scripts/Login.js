@@ -9,10 +9,10 @@ export class Login extends Component
     {
         super(props);
 
-        this.state = { isLoggedIn: !!localStorage.getItem("token"), isError: false, username: '', password: '' };
+        this.state = { isLoggedIn: !!localStorage.getItem("token"), isError: false, userID: '', password: '' };
 
         this.onLoginClicked = this.onLoginClicked.bind(this);
-        this.onChangeUsername = this.onChangeUsername.bind(this);
+        this.onChangeUserID = this.onChangeUserID.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
     }
 
@@ -45,7 +45,7 @@ export class Login extends Component
 
     renderError() 
     {
-        return this.state.isError ? <div class="alert alert-danger" role="alert">The username or password provided were incorrect!</div> : null; 
+        return this.state.isError ? <div class="alert alert-danger" role="alert">The user ID or password provided were incorrect!</div> : null; 
     }
 
     renderLogin() 
@@ -56,8 +56,8 @@ export class Login extends Component
                 <form class="form-content">
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="username">Username</label>
-                            <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} required />
+                            <label for="userID">User ID</label>
+                            <input id="userID" type="number" class="form-control" placeholder="User ID" value={this.state.userID} onChange={this.onChangeUserID} required />
                         </div>
                         <div class="form-group col-md-6">
                             <label for="password">Password</label>
@@ -67,7 +67,7 @@ export class Login extends Component
                     <div class="form-row">
                         <div class="col">
                             <button class="btn btn-primary mr-2" onClick={this.onLoginClicked}>Login</button>
-                            <Link to={{ pathname: "/create", state: { referrer: this.props.location } }}>Don't have an account?</Link>
+                            <Link to={{ pathname: "/create", state: { referrer: this.props?.location?.state?.referrer } }}>Don't have an account?</Link>
                         </div>
                     </div>
                 </form>
@@ -81,9 +81,9 @@ export class Login extends Component
         this.login();
     }
 
-    onChangeUsername(event) 
+    onChangeUserID(event) 
     {
-        this.setState({ username: event?.target?.value });
+        this.setState({ userID: event?.target?.value });
     }
 
     onChangePassword(event) 
@@ -93,13 +93,13 @@ export class Login extends Component
 
     async login()
     {
-        if (!this.state.username || !this.state.password)
+        if (!this.state.userID || !this.state.password)
         {
             return;
         }
 
         const headers = new Headers();
-        headers.set('Authorization', 'Basic ' + btoa(this.state.username + ":" + this.state.password));
+        headers.set('Authorization', 'Basic ' + btoa(this.state.userID + ":" + this.state.password));
 
         const response = await fetch('login', {
             method: 'POST',

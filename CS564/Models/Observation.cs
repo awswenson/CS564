@@ -1,7 +1,9 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CS564.Models
 {
+    [Table("Observations", Schema = "trn")]
     public class Observation
     {
         public int ID { get; set; }

@@ -8,14 +8,14 @@ export class CreateAccount extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { isLoggedIn: !!localStorage.getItem("token"), firstName: '', lastName: '', email: '', username: '', password: '', confirmPassword: '', errorMessage: '' };
+        this.state = { isLoggedIn: !!localStorage.getItem("token"), firstName: '', lastName: '', email: '', userID: '', password: '', confirmPassword: '', errorMessage: '' };
 
         this.onSubmitClicked = this.onSubmitClicked.bind(this);
         this.createAccount = this.createAccount.bind(this);
         this.onChangeFirstName = this.onChangeFirstName.bind(this);
         this.onChangeLastName = this.onChangeLastName.bind(this);
         this.onChangeEmail = this.onChangeEmail.bind(this);
-        this.onChangeUsername = this.onChangeUsername.bind(this);
+        this.onChangeUserID = this.onChangeUserID.bind(this);
         this.onChangePassword = this.onChangePassword.bind(this);
         this.onChangeConfirmPassword = this.onChangeConfirmPassword.bind(this);
     }
@@ -74,8 +74,8 @@ export class CreateAccount extends Component
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="username">Username</label>
-                            <input id="username" type="text" class="form-control" placeholder="Username" value={this.state.username} onChange={this.onChangeUsername} required />
+                            <label for="userID">User ID</label>
+                            <input id="userID" type="number" class="form-control" placeholder="Username" value={this.state.userID} onChange={this.onChangeUserID} required />
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -90,7 +90,7 @@ export class CreateAccount extends Component
                 <div class="form-row">
                     <div class="col">
                         <button class="btn btn-primary mr-2" onClick={this.onSubmitClicked}>Submit</button>
-                        <Link to={{ pathname: "/login", state: { referrer: this.props.location } }}>Already have an account?</Link>
+                        <Link to={{ pathname: "/login", state: { referrer: this.props?.location?.state?.referrer } }}>Already have an account?</Link>
                     </div>
                 </div>
             </form>
@@ -138,7 +138,7 @@ export class CreateAccount extends Component
         };
 
         const headers = new Headers();
-        headers.set('Authorization', 'Basic ' + btoa(this.state.username + ":" + this.state.password));
+        headers.set('Authorization', 'Basic ' + btoa(this.state.userID + ":" + this.state.password));
 
         const response = await fetch('create', {
             method: 'POST',
@@ -175,9 +175,9 @@ export class CreateAccount extends Component
         this.setState({ email: event?.target?.value });
     }
 
-    onChangeUsername(event) 
+    onChangeUserID(event) 
     {
-        this.setState({ username: event?.target?.value });
+        this.setState({ userID: event?.target?.value });
     }
 
     onChangePassword(event) 

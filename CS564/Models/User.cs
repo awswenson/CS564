@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CS564.Models
 {
+    [Table("Users", Schema = "trn")]
     public class User
     {
-        public string UserID { get; set; }
+        public int UserID { get; set; }
 
         public string Password { get; set; }
 

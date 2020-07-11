@@ -8,7 +8,7 @@ export class Profile extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { loading: true, profile: [], isLoggedIn: true };
+        this.state = { profile: [], isLoggedIn: true };
 
         this.onLogoutClicked = this.onLogoutClicked.bind(this);
     }
@@ -26,7 +26,7 @@ export class Profile extends Component
     renderRedirect()
     {
         return (
-            <Redirect to="/login" />
+            <Redirect to={{ pathname: "/login", state: { referrer: this.props.location } }} />
         );
     }
 
@@ -43,49 +43,38 @@ export class Profile extends Component
 
     renderProfile()
     {
-        if (this.state.loading)
-        {
-            return (
-                <div class="row">
-                    <div class="col-auto">Loading</div>
-                </div>
-            );
-        }
-        else
-        {
-            return (
-                <form class="form-content">
-                    <div class="form-row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input id="firstName" type="text" class="form-control" value={this.state.profile.firstName} readOnly />
-                            </div>
-                            <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input id="lastName" type="text" class="form-control" value={this.state.profile.lastName} readOnly />
-                            </div>
+        return (
+            <form class="form-content">
+                <div class="form-row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input id="firstName" type="text" class="form-control" value={this.state.profile?.firstName} readOnly />
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input id="email" type="email" class="form-control" value={this.state.profile.email} readOnly />
-                            </div>
-                            <div class="form-group">
-                                <label for="username">Username</label>
-                                <input id="username" type="text" class="form-control" value={this.state.profile.userID} readOnly />
-                            </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input id="lastName" type="text" class="form-control" value={this.state.profile?.lastName} readOnly />
                         </div>
                     </div>
-                </form>
-            );
-        }
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input id="email" type="email" class="form-control" value={this.state.profile?.email} readOnly />
+                        </div>
+                        <div class="form-group">
+                            <label for="username">User ID</label>
+                            <input id="username" type="number" class="form-control" value={this.state.profile?.userID} readOnly />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        );
     }
 
     async loadUser()
     {
         const headers = new Headers();
-        headers.set('Authorization', 'Token ' + localStorage.getItem("token"));
+        headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
         const response = await fetch('profile', {
             method: 'GET',
@@ -95,11 +84,12 @@ export class Profile extends Component
         if (response.ok)
         {
             const data = await response.json();
-            this.setState({ profile: data, loading: false });
+            this.setState({ profile: data });
         }
         else
         {
-            // TODO
+            localStorage.setItem("token", "");
+            this.setState({ isLoggedIn: false });
         }
     }
 
