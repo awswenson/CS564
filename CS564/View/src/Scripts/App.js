@@ -1,4 +1,4 @@
-import React, { Component, createContext } from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Home } from './Home';
 import { Layout } from './Layout';
@@ -23,21 +23,17 @@ export default class App extends Component {
 
     render()
     {
-        const AuthenticationContext = createContext(this.state.token);
-
         return (
-            <AuthenticationContext.Provider value={this.state.token}> 
-                <Router>
-                    <Layout>
-                        <Route exact path='/' component={Home} />
-                        <Route path='/trend' component={Trend} />
-                        <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
-                        <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
-                        <Route path='/login' component={Login} />
-                        <Route path='/create' component={CreateAccount} />
-                    </Layout>
-                </Router>
-            </AuthenticationContext.Provider>
+            <Router>
+                <Layout>
+                    <Route exact path='/' component={Home} />
+                    <Route path='/trend' component={Trend} />
+                    <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
+                    <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
+                    <Route path='/login' component={Login} />
+                    <Route path='/create' component={CreateAccount} />
+                </Layout>
+            </Router>
         );
     }
 

@@ -65,7 +65,7 @@ export class Trend extends Component {
     constructor(props)
     {
         super(props);
-        this.state = { trendResults: [] };
+        this.state = { trendResults: [], noResults: false };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeAnimal = this.onChangeAnimal.bind(this);
@@ -82,13 +82,12 @@ export class Trend extends Component {
 
     render()
     {
-        let contents = this.state.trendResults.length > 0 ? this.renderTrendResults(this.state.trendResults) : null;
-
         return (
             <div>
                 <h1>Trending Near You</h1>
                 {this.renderTrendCriteria()}
-                {contents}
+                {this.renderTrendResults()}
+                {this.renderNoResultsBanner()}
             </div>
         );
     }
@@ -131,30 +130,38 @@ export class Trend extends Component {
         );
     }
 
-    renderTrendResults(trendResults)
+    renderTrendResults()
     {
-        return (
-            <div>
-                <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
-                <table class="table table-hover sortable">
-                    <thead class="thead-dark">
-                        <tr>
-
-                            <th>Animal</th>
-                            <th>Trending</th>
-                        </tr>
-                    </thead>
-                    <tbody ref={ref => this.trendTable = ref}>
-                        {trendResults.map(result =>
+        if (this.state.trendResults.length > 0)
+        {
+            return (
+                <div>
+                    <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
+                    <table class="table table-hover sortable">
+                        <thead class="thead-dark">
                             <tr>
-                                <td>{result.animal}</td>
-                                <td>{result.trending}</td>
+
+                                <th>Animal</th>
+                                <th>Trending</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        );
+                        </thead>
+                        <tbody ref={ref => this.trendTable = ref}>
+                            {this.state.trendResults.map(result =>
+                                <tr>
+                                    <td>{result.animal}</td>
+                                    <td>{result.trending}</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            );
+        }
+    }
+
+    renderNoResultsBanner() 
+    {
+        return this.state.noResults ? <div class="alert alert-info mt-4" role="alert">There were no species found given the trending criteria</div> : null;
     }
 
     onKeyUpFilter(event)
@@ -228,9 +235,25 @@ export class Trend extends Component {
             .map(index => encodeURIComponent(index) + '=' + encodeURIComponent(params[index]))
             .join('&');
 
-        const response = await fetch("trend?" + query, { method: 'GET' });
-        const data = await response.json();
-        this.setState({ trendResults: data });
+        const response = await fetch("api/trend?" + query, { method: 'GET' });
+
+        if (response.ok)
+        {
+            const data = await response.json();
+
+            if (data.length > 0)
+            {
+                this.setState({ trendResults: data, noResults: false });
+            }
+            else
+            {
+                this.setState({ trendResults: [], noResults: true });
+            }
+        }
+        else
+        {
+            this.setState({ trendResults: [], noResults: true });
+        }
     }
 }
 

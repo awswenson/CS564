@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { Redirect } from "react-router-dom";
 
 export class Observations extends Component 
 {
@@ -7,7 +8,7 @@ export class Observations extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { observations: [], loading: true, id: -1, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '', updateObservation: false };
+        this.state = { observations: [], noObservations: false, loading: true, id: -1, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '', updateObservation: false, isLoggedIn: true };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
@@ -25,13 +26,26 @@ export class Observations extends Component
         this.popuplateObservations();
     }
 
-    render() 
+    render()
+    {
+        return this.state.isLoggedIn ? this.renderMain() : this.renderRedirect();
+    }
+
+    renderRedirect()
+    {
+        return (
+            <Redirect to={{ pathname: "/login", state: { referrer: this.props.location } }} />
+        );
+    }
+
+    renderMain() 
     {
         return (
             <div>
                 <h1>Observations</h1>
                 {this.renderError()}
                 {this.renderAddObservation()}
+                {this.renderNoResultsBanner()}
                 {this.renderObservations()}
             </div>
         );
@@ -83,15 +97,7 @@ export class Observations extends Component
 
     renderObservations() 
     {
-        if (this.state.loading)
-        {
-            return (
-                <div class="row">
-                    <div class="col-auto">Loading</div>
-                </div>
-            );
-        }
-        else
+        if (this.state.observations.length > 0)
         {
             return (
                 <div>
@@ -126,6 +132,11 @@ export class Observations extends Component
                 </div>
             );
         }
+    }
+
+    renderNoResultsBanner() 
+    {
+        return this.state.noObservations ? <div class="alert alert-info mt-4" role="alert">You have no recorded observations. Use the form above to add your first observation!</div> : null;
     }
 
     onChangeDate(event) 
@@ -271,6 +282,7 @@ export class Observations extends Component
 
             this.setState({
                 observations: this.state.observations,
+                noObservations: this.state.observations.length == 0,
                 id: -1,
                 date: '',
                 latitude: '',
@@ -283,7 +295,15 @@ export class Observations extends Component
         }
         else
         {
-            // TODO
+            if (response.status === 401) // Unauthorized
+            {
+                localStorage.setItem("token", "");
+                this.setState({ isLoggedIn: false });
+            }
+            else
+            {
+                this.setState({ errorMessage: "Unable to add observation. Please try again." });
+            }
         }
     }
 
@@ -322,6 +342,7 @@ export class Observations extends Component
 
             this.setState({
                 observations: this.state.observations,
+                noObservations: this.state.observations.length == 0,
                 id: -1,
                 date: '',
                 latitude: '',
@@ -334,7 +355,15 @@ export class Observations extends Component
         }
         else
         {
-            // TODO
+            if (response.status === 401) // Unauthorized
+            {
+                localStorage.setItem("token", "");
+                this.setState({ isLoggedIn: false });
+            }
+            else
+            {
+                this.setState({ errorMessage: "Unable to update observation. Please try again." });
+            }
         }
     }
 
@@ -351,11 +380,19 @@ export class Observations extends Component
         if (response.ok)
         {
             const data = this.state.observations.filter(observation => observation.id !== id);
-            this.setState({ observations: data });
+            this.setState({ observations: data, noObservations: data.length == 0 });
         }
         else
         {
-            // TODO
+            if (response.status === 401) // Unauthorized
+            {
+                localStorage.setItem("token", "");
+                this.setState({ isLoggedIn: false });
+            }
+            else
+            {
+                this.setState({ errorMessage: "Unable to delete observation. Please try again." });
+            }
         }
     }
 
@@ -396,11 +433,19 @@ export class Observations extends Component
         if (response.ok)
         {
             const data = await response.json();
-            this.setState({ observations: data, loading: false });
+            this.setState({ observations: data, noObservations: data.length == 0 });
         }
         else
         {
-            // TODO
+            if (response.status === 401) // Unauthorized
+            {
+                localStorage.setItem("token", "");
+                this.setState({ isLoggedIn: false });
+            }
+            else 
+            {
+                this.setState({ observations: [], noObservations: false, errorMessage: "Unable to get observations." });
+            }
         }
     }
 }
