@@ -2,7 +2,7 @@ import React, { Component, createContext } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Home } from './Home';
 import { Layout } from './Layout';
-import { Search } from './Search';
+import { Trend } from './Trend';
 import { Observations } from './Observations';
 import { Profile } from './Profile';
 import { Login } from './Login';
@@ -30,7 +30,7 @@ export default class App extends Component {
                 <Router>
                     <Layout>
                         <Route exact path='/' component={Home} />
-                        <Route path='/search' component={Search} />
+                        <Route path='/trend' component={Trend} />
                         <Route path='/observations' render={props => this.isLoggedIn() ? <Observations {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
                         <Route path='/profile' render={props => this.isLoggedIn() ? <Profile {...props} /> : <Redirect to={{ pathname: '/login', state: { referrer: props.location } }} />} />
                         <Route path='/login' component={Login} />

@@ -1,4 +1,3 @@
-﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CS564.Models

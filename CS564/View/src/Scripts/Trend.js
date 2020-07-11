@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 
-export class Search extends Component {
-    static displayName = Search.name;
+export class Trend extends Component {
+    static displayName = Trend.name;
 
     states = [
         "Alabama",
@@ -56,22 +56,23 @@ export class Search extends Component {
         "Wyoming"
     ];
 
-    searchDate = '';
-    searchAnimal = '';
-    searchCounty = '';
-    searchState = '';
+    trendDate = '';
+    trendAnimal = '';
+    trendCounty = '';
+    trendState = '';
+    trendLocation = '';
 
     constructor(props)
     {
         super(props);
-        this.state = { searchResults: [] };
+        this.state = { trendResults: [] };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeAnimal = this.onChangeAnimal.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
         this.onChangeCounty = this.onChangeCounty.bind(this);
         this.onChangeState = this.onChangeState.bind(this);
-        this.onSearchClicked = this.onSearchClicked.bind(this);
+        this.onTrendClicked = this.onTrendClicked.bind(this);
     }
 
     componentDidMount()
@@ -81,18 +82,18 @@ export class Search extends Component {
 
     render()
     {
-        let contents = this.state.searchResults.length > 0 ? this.renderSearchResults(this.state.searchResults) : null;
+        let contents = this.state.trendResults.length > 0 ? this.renderTrendResults(this.state.trendResults) : null;
 
         return (
             <div>
-                <h1>Search</h1>
-                {this.renderSearchCriteria()}
+                <h1>Trending Near You</h1>
+                {this.renderTrendCriteria()}
                 {contents}
             </div>
         );
     }
 
-    renderSearchCriteria()
+    renderTrendCriteria()
     {
         return (
             <form class="form-content">
@@ -107,7 +108,7 @@ export class Search extends Component {
                     </div>
                     <div class="form-group col-md-3">
                         <label for="state">State</label>
-                        <select id="state" class="form-control" searchable="State" onChange={this.onChangeState}>
+                        <select id="state" class="form-control" trendable="State" onChange={this.onChangeState}>
                             <option value="" disabled selected>State</option>
                             {this.states.map(state =>
                                 <option value={state}>{state}</option>
@@ -123,14 +124,14 @@ export class Search extends Component {
                 </div>
                 <div class="form-row">
                     <div class="col">
-                        <button class="btn btn-primary float-right" onClick={this.onSearchClicked}>Search</button>
+                        <button class="btn btn-primary float-right" onClick={this.onTrendClicked}>Search</button>
                     </div>
                 </div>
             </form>
         );
     }
 
-    renderSearchResults(searchResults)
+    renderTrendResults(trendResults)
     {
         return (
             <div>
@@ -138,17 +139,14 @@ export class Search extends Component {
                 <table class="table table-hover sortable">
                     <thead class="thead-dark">
                         <tr>
-                            {this.searchDate ? null : <th>Date</th>}
-                            {this.searchCounty && this.searchState ? null : <th>Location</th>}
+
                             <th>Animal</th>
                             <th>Trending</th>
                         </tr>
                     </thead>
-                    <tbody ref={ref => this.searchTable = ref}>
-                        {searchResults.map(result =>
+                    <tbody ref={ref => this.trendTable = ref}>
+                        {trendResults.map(result =>
                             <tr>
-                                {this.searchDate ? null : <td>{this.convertDate(result.date)}</td>}
-                                {this.searchCounty && this.searchState ? null : <td>{result.location}</td>}
                                 <td>{result.animal}</td>
                                 <td>{result.trending}</td>
                             </tr>
@@ -161,15 +159,15 @@ export class Search extends Component {
 
     onKeyUpFilter(event)
     {
-        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the search field
-        const rows = this.searchTable?.getElementsByTagName("tr");
+        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the trend field
+        const rows = this.trendTable?.getElementsByTagName("tr");
 
         if (!rows)
         {
             return; // No rows to filter
         }
 
-        // Loop through all table rows and hide those who don't match the search query
+        // Loop through all table rows and hide those who don't match the trend query
         for (let i = 0; i < rows.length; i++)
         {
             const data = rows[i].textContent || rows[i].innerText;
@@ -199,40 +197,40 @@ export class Search extends Component {
 
     onChangeAnimal(event)
     {
-        this.searchAnimal = event?.target?.value;
+        this.trendAnimal = event?.target?.value;
     }
 
     onChangeDate(event)
     {
-        this.searchDate = event?.target?.value;
+        this.trendDate = event?.target?.value;
     }
 
     onChangeCounty(event)
     {
-        this.searchCounty = event?.target?.value;
+        this.trendCounty = event?.target?.value;
     }
 
     onChangeState(event)
     {
-        this.searchState = event?.target?.value;
+        this.trendState = event?.target?.value;
     }
 
-    onSearchClicked(event)
+    onTrendClicked(event)
     {
         event.preventDefault(); // Prevent the page from refreshing
-        this.search();
+        this.trend();
     }
 
-    async search()
+    async trend()
     {
-        const params = { date: this.searchDate ? this.searchDate : new Date().toLocaleDateString(), animal: this.searchAnimal, county: this.searchCounty, state: this.searchState };
+        const params = { date: this.trendDate ? this.trendDate : new Date().toLocaleDateString(), animal: this.trendAnimal, county: this.trendCounty, state: this.trendState };
         const query = Object.keys(params)
             .map(index => encodeURIComponent(index) + '=' + encodeURIComponent(params[index]))
             .join('&');
 
-        const response = await fetch("search?" + query, { method: 'GET' });
+        const response = await fetch("trend?" + query, { method: 'GET' });
         const data = await response.json();
-        this.setState({ searchResults: data });
+        this.setState({ trendResults: data });
     }
 }
 
