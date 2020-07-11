@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 
 namespace CS564.Models
 {
+   
     public class User
     {
         public string UserID { get; set; }
