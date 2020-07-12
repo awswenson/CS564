@@ -3,6 +3,7 @@ using CS564.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -41,16 +42,7 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            IEnumerable<Observation> observations = Enumerable.Range(1, 5).Select(index => new Observation
-            {
-                ID = index,
-                ObservationDate = DateTime.Now.AddDays(-index).Date,
-                Latitude = "Here's the lattitude",
-                Longitude = "Here's the longitude",
-                Animal = "Whitetail Deer",
-                Comments = "These are some comments",
-            })
-            .ToArray();
+            IEnumerable<Observation> observations = _context.Observations.FromSqlRaw("SELECT * FROM trn.Observations WHERE UserID = {0}", user.UserID).ToArray();
 
             return Ok(observations);
         }
@@ -66,6 +58,8 @@ namespace CS564.Controllers
             {
                 return BadRequest();
             }
+
+            var test = _context.Observations.FromSqlRaw("DELETE FROM trn.Observations WHERE ObservationID = {0}", id);
 
             // TODO
             // We should return NotFound() if we cannot find the observation in the database

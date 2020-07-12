@@ -115,15 +115,15 @@ export class Observations extends Component
                         </thead>
                         <tbody ref={ref => this.observationsTable = ref}>
                             {this.state.observations.map(observation =>
-                                <tr key={observation.id}>
+                                <tr key={observation.observationID}>
                                     <td>{this.convertDate(observation.observationDate)}</td>
-                                    <td>{observation.latitude}</td>
-                                    <td>{observation.longitude}</td>
+                                    <td>{observation.observationLatitude}</td>
+                                    <td>{observation.observationLongitude}</td>
                                     <td>{observation.animal}</td>
                                     <td>{observation.comments}</td>
                                     <td>
                                         <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation)}>Edit</button>
-                                        <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, observation.id)}>Delete</button>
+                                        <button type="button" class="btn btn-danger" onClick={this.onDeleteClicked.bind(this, observation.observationID)}>Delete</button>
                                     </td>
                                 </tr>
                             )}
@@ -238,7 +238,7 @@ export class Observations extends Component
         const month = ("0" + (date.getMonth() + 1)).slice(-2);
 
         this.setState({
-            id: observation.id,
+            id: observation.observationID,
             date: date.getFullYear() + "-" + (month) + "-" + (day),
             latitude: observation.latitude,
             longitude: observation.longitude,
@@ -257,10 +257,10 @@ export class Observations extends Component
     async add()
     {
         const observation = {
-            id: this.state.id,
+            observationID: this.state.id,
             observationDate: this.state.date,
-            latitude: this.state.latitude,
-            longitude: this.state.longitude,
+            ObservationLatitude: this.state.latitude,
+            observationIDLongitude: this.state.longitude,
             animal: this.state.animal,
             comments: this.state.comments,
         };
@@ -276,7 +276,7 @@ export class Observations extends Component
 
         if (response.ok)
         {
-            observation.id = await response.text();
+            observation.observationID = await response.text();
 
             this.state.observations.push(observation);
 
@@ -379,7 +379,7 @@ export class Observations extends Component
 
         if (response.ok)
         {
-            const data = this.state.observations.filter(observation => observation.id !== id);
+            const data = this.state.observations.filter(observation => observation.observationID !== id);
             this.setState({ observations: data, noObservations: data.length == 0 });
         }
         else

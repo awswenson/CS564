@@ -11,6 +11,12 @@ namespace CS564.Database
 
 		public DbSet<Trend> Trend { get; set; }
 
+		public DbSet<Observation> Observations { get; set; }
+
+		public DbSet<Location> Locations { get; set; }
+
+		public DbSet<Animal> Animals { get; set; }
+
 		public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
 		{
 
