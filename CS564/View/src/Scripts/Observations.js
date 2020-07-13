@@ -8,7 +8,21 @@ export class Observations extends Component
     constructor(props) 
     {
         super(props);
-        this.state = { observations: [], noObservations: false, loading: true, id: -1, date: '', latitude: '', longitude: '', animal: '', comments: '', errorMessage: '', updateObservation: false, isLoggedIn: true };
+        this.state = {
+            observations: [],
+            noObservations: false,
+            animalOptions: [],
+            id: 0,
+            date: '',
+            latitude: '',
+            longitude: '',
+            taxonID: '',
+            animal: '',
+            comments: '',
+            errorMessage: '',
+            updateObservation: false,
+            isLoggedIn: true
+        };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
@@ -24,6 +38,7 @@ export class Observations extends Component
     componentDidMount() 
     {
         this.popuplateObservations();
+        this.getAnimalOptions();
     }
 
     render()
@@ -67,17 +82,22 @@ export class Observations extends Component
                     </div>
                     <div class="form-group col-md-4">
                         <label for="latitute">Latitute</label>
-                        <input id="latitute" type="text" class="form-control" placeholder="Latitude" value={this.state.latitude} onChange={this.onChangeLatitude} required />
+                        <input id="latitute" type="number" class="form-control" placeholder="Latitude" value={this.state.latitude} onChange={this.onChangeLatitude} required />
                     </div>
                     <div class="form-group col-md-4">
                         <label for="longitute">Longitude</label>
-                        <input id="longitute" type="text" class="form-control" placeholder="Longitude" value={this.state.longitude} onChange={this.onChangeLongitude} required />
+                        <input id="longitute" type="number" class="form-control" placeholder="Longitude" value={this.state.longitude} onChange={this.onChangeLongitude} required />
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="animal">Animal</label>
-                        <input id="animal" type="text" class="form-control" placeholder="Animal" value={this.state.animal} onChange={this.onChangeAnimal} required />
+                        <select id="animal" class="form-control" onChange={this.onChangeAnimal} value={this.state.taxonID} required>
+                            <option value="" disabled selected>Animal</option>
+                            {this.state.animalOptions.map(animal =>
+                                <option data-value={JSON.stringify(animal)} value={animal.taxonID}>{animal.commonName} ({animal.scientificName})</option>
+                            )}
+                        </select>
                     </div>
                     <div class="form-group col-md-6">
                         <label for="comments">Comments</label>
@@ -119,7 +139,7 @@ export class Observations extends Component
                                     <td>{this.convertDate(observation.observationDate)}</td>
                                     <td>{observation.observationLatitude}</td>
                                     <td>{observation.observationLongitude}</td>
-                                    <td>{observation.animal}</td>
+                                    <td>{observation.animal.commonName} ({observation.animal.scientificName})</td>
                                     <td>{observation.comments}</td>
                                     <td>
                                         <button type="button" class="btn btn-warning mr-1" onClick={this.onEditClicked.bind(this, observation)}>Edit</button>
@@ -146,7 +166,13 @@ export class Observations extends Component
 
     onChangeAnimal(event) 
     {
-        this.setState({ animal: event?.target?.value });
+        const index = event?.target?.selectedIndex;
+        const animal = JSON.parse(event?.target?.childNodes[index]?.getAttribute("data-value")); // Contains the actual animal object
+
+        this.setState({
+            taxonID: event?.target?.value,
+            animal: animal 
+        });
     }
 
     onChangeLatitude(event) 
@@ -188,16 +214,7 @@ export class Observations extends Component
     {
         event.preventDefault(); // Prevent the page from refreshing
 
-        this.setState({
-            id: -1,
-            date: '',
-            latitude: '',
-            longitude: '',
-            animal: '',
-            comments: '',
-            errorMessage: '',
-            updateObservation: false
-        });
+        this.clearObservationState();
     }
 
     onKeyUpFilter(event) 
@@ -233,20 +250,9 @@ export class Observations extends Component
             return;
         }
 
-        const date = new Date(observation.observationDate);
-        const day = ("0" + date.getDate()).slice(-2);
-        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        this.setObservationState(observation);
 
-        this.setState({
-            id: observation.observationID,
-            date: date.getFullYear() + "-" + (month) + "-" + (day),
-            latitude: observation.latitude,
-            longitude: observation.longitude,
-            animal: observation.animal,
-            comments: observation.comments,
-            errorMessage: '',
-            updateObservation: true,
-        });
+        this.setState({ errorMessage: '' });
     }
 
     onDeleteClicked(id, event) 
@@ -257,10 +263,11 @@ export class Observations extends Component
     async add()
     {
         const observation = {
-            observationID: this.state.id,
-            observationDate: this.state.date,
-            ObservationLatitude: this.state.latitude,
-            observationIDLongitude: this.state.longitude,
+            observationID: 0,
+            observationDate: !this.state.date ? new Date() : this.state.date,
+            observationLatitude: this.state.latitude,
+            observationLongitude: this.state.longitude,
+            taxonID: this.state.animal.taxonID,
             animal: this.state.animal,
             comments: this.state.comments,
         };
@@ -280,17 +287,12 @@ export class Observations extends Component
 
             this.state.observations.push(observation);
 
+            this.clearObservationState();
+
             this.setState({
                 observations: this.state.observations,
                 noObservations: this.state.observations.length == 0,
-                id: -1,
-                date: '',
-                latitude: '',
-                longitude: '',
-                animal: '',
-                comments: '',
                 errorMessage: '',
-                updateObservation: false
             });
         }
         else
@@ -310,10 +312,11 @@ export class Observations extends Component
     async update()
     {
         const observation = {
-            id: this.state.id,
-            observationDate: this.state.date,
-            latitude: this.state.latitude,
-            longitude: this.state.longitude,
+            observationID: this.state.id,
+            observationDate: !this.state.date ? new Date() : this.state.date,
+            observationLatitude: this.state.latitude,
+            observationLongitude: this.state.longitude,
+            taxonID: this.state.animal.taxonID,
             animal: this.state.animal,
             comments: this.state.comments,
         };
@@ -329,7 +332,7 @@ export class Observations extends Component
 
         if (response.ok)
         {
-            const index = this.state.observations.findIndex(observation => observation.id === this.state.id);
+            const index = this.state.observations.findIndex(observation => observation.observationID === this.state.id);
 
             if (index !== -1)
             {
@@ -340,17 +343,12 @@ export class Observations extends Component
                 this.state.observations.push(observation);
             }
 
+            this.clearObservationState();
+
             this.setState({
                 observations: this.state.observations,
                 noObservations: this.state.observations.length == 0,
-                id: -1,
-                date: '',
-                latitude: '',
-                longitude: '',
-                animal: '',
-                comments: '',
-                errorMessage: '',
-                updateObservation: false
+                errorMessage: ''
             });
         }
         else
@@ -380,7 +378,12 @@ export class Observations extends Component
         if (response.ok)
         {
             const data = this.state.observations.filter(observation => observation.observationID !== id);
-            this.setState({ observations: data, noObservations: data.length == 0 });
+
+            this.setState({
+                observations: data,
+                noObservations: data.length == 0,
+                errorMessage: ''
+            });
         }
         else
         {
@@ -398,9 +401,27 @@ export class Observations extends Component
 
     validateObservation()
     {
-        if (!this.state.date)
+        if (!this.state.animal || !this.state.taxonID)
         {
-            this.setState({ errorMessage: "Missing required inputs!" });
+            this.setState({ errorMessage: "Please specify the animal being observed!" });
+            return false;
+        }
+
+        if (!this.state.latitude || !this.state.longitude)
+        {
+            this.setState({ errorMessage: "Please specify the location of the observation!" });
+            return false;
+        }
+
+        if (this.state.latitude <-90 || this.state.latitude > 90)
+        {
+            this.setState({ errorMessage: "Invalid latitude! Latitudes must be specified as a degree between -90 and 90." });
+            return false;
+        }
+
+        if (this.state.longitude < -90 || this.state.longitude > 90)
+        {
+            this.setState({ errorMessage: "Invalid longitude! Longitude must be specified as a degree between -180 and 180." });
             return false;
         }
 
@@ -420,6 +441,21 @@ export class Observations extends Component
         return date ? date.toLocaleDateString() : "";
     }
 
+    async getAnimalOptions()
+    {
+        const response = await fetch('animals', { method: 'GET' });
+
+        if (response.ok)
+        {
+            const data = await response.json();
+            this.setState({ animalOptions: data});
+        }
+        else
+        {
+            // TODO
+        }
+    }
+
     async popuplateObservations() 
     {
         const headers = new Headers();
@@ -433,7 +469,12 @@ export class Observations extends Component
         if (response.ok)
         {
             const data = await response.json();
-            this.setState({ observations: data, noObservations: data.length == 0 });
+
+            this.setState({
+                observations: data,
+                noObservations: data.length == 0,
+                errorMessage: ''
+            });
         }
         else
         {
@@ -444,8 +485,49 @@ export class Observations extends Component
             }
             else 
             {
-                this.setState({ observations: [], noObservations: false, errorMessage: "Unable to get observations." });
+                this.setState({
+                    observations: [],
+                    noObservations: false,
+                    errorMessage: "Unable to get observations."
+                });
             }
         }
+    }
+
+    setObservationState(observation)
+    {
+        if (!observation)
+        {
+            return;
+        }
+
+        const date = new Date(observation.observationDate);
+        const day = ("0" + date.getDate()).slice(-2);
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+        this.setState({
+            id: observation.observationID,
+            date: date.getFullYear() + "-" + (month) + "-" + (day),
+            latitude: observation.observationLatitude,
+            longitude: observation.observationLongitude,
+            taxonID: observation.animal?.taxonID,
+            animal: observation.animal,
+            comments: observation.comments,
+            updateObservation: true
+        });
+    }
+
+    clearObservationState()
+    {
+        this.setState({
+            id: 0,
+            date: '',
+            latitude: '',
+            longitude: '',
+            taxonID: '',
+            animal: '',
+            comments: '',
+            updateObservation: false,
+        });
     }
 }

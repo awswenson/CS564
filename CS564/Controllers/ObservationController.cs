@@ -42,7 +42,7 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            IEnumerable<Observation> observations = _context.Observations.FromSqlRaw("SELECT * FROM trn.Observations WHERE UserID = {0}", user.UserID).ToArray();
+            IEnumerable<Observation> observations = _context.GetAllObservations(user.UserID);
 
             return Ok(observations);
         }
@@ -59,12 +59,16 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            var test = _context.Observations.FromSqlRaw("DELETE FROM trn.Observations WHERE ObservationID = {0}", id);
+            bool success = _context.DeleteObservation(id);
 
-            // TODO
-            // We should return NotFound() if we cannot find the observation in the database
-
-            return Ok();
+            if (success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         [HttpPut]
@@ -111,9 +115,19 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            // TODO
+            observation.UserID = user.UserID;
+            observation.LocationID = 1; // TODO 
 
-            return Ok(45);
+            int observationID = _context.CreateObservation(observation);
+
+            if (observationID == -1)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok(observationID);
+            }
         }
 
         private async Task<Observation> GetObservationFromBody(Stream body)

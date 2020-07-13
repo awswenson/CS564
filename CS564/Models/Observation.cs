@@ -8,22 +8,29 @@ namespace CS564.Models
     public class Observation
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ObservationID { get; set; }
 
-        [ForeignKey(nameof(Animal))]
         public int TaxonID { get; set; }
 
-        [ForeignKey(nameof(Location))]
+        [ForeignKey(nameof(TaxonID))]
+        public virtual Animal Animal { get; set; }
+
         public int LocationID { get; set; }
 
-        [ForeignKey(nameof(User))]
+        [ForeignKey(nameof(LocationID))]
+        public virtual Location Location { get; set; }
+
         public int UserID { get; set; }
+
+        [ForeignKey(nameof(UserID))]
+        public virtual User User { get; set; }
 
         public DateTime ObservationDate { get; set; }
 
-        public string ObservationLatitude { get; set; }
+        public decimal ObservationLatitude { get; set; }
 
-        public string ObservationLongitude { get; set; }
+        public decimal ObservationLongitude { get; set; }
 
         public string Comments { get; set; }
     }

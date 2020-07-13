@@ -3,20 +3,19 @@ using CS564.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CS564.Controllers
 {
     [ApiController]
-    [Route("api/trend")]
-    public class TrendController : ControllerBase
+    [Route("animals")]
+    public class AnimalController : ControllerBase
     {
-        private readonly ILogger<TrendController> _logger;
+        private readonly ILogger<AnimalController> _logger;
         private readonly DatabaseContext _context;
 
-        public TrendController(ILogger<TrendController> logger, DatabaseContext context)
+        public AnimalController(ILogger<AnimalController> logger, DatabaseContext context)
         {
             _logger = logger;
             _context = context;
@@ -24,9 +23,11 @@ namespace CS564.Controllers
 
         [HttpGet]
         [Route("")]
-        public ActionResult<IEnumerable<Trend>> TrendObservations(DateTime date, string animal, string county, string state)
+        public ActionResult<IEnumerable<Animal>> GetAllAnimals()
         {
-            return Ok(_context.GetAllTrendsMatchingCriteria(date, null, county, state));
+            IEnumerable<Animal> animals = _context.Animals.FromSqlRaw("SELECT * FROM trn.Animals ORDER BY CommonName ASC").ToList();
+
+            return Ok(animals);
         }
     }
 }
