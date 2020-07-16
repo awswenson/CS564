@@ -116,8 +116,16 @@ export class Trend extends Component {
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="animal">Animal</label>
+                    <div class="form-group col-md-4">
+                        <label for="animal">Kingdom</label>
+                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="animal">Phylum</label>
+                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="animal">Class</label>
                         <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
                     </div>
                 </div>

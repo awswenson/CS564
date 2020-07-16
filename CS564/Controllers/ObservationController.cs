@@ -3,7 +3,6 @@ using CS564.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,7 +17,7 @@ using System.Threading.Tasks;
 namespace CS564.Controllers
 {
     [ApiController]
-    [Route("observation")]
+    [Route("observations")]
     public class ObservationController : ControllerBase
     {
         private readonly ILogger<ObservationController> _logger;
@@ -50,7 +49,7 @@ namespace CS564.Controllers
         [HttpDelete]
         [Authorize]
         [Route("{id:int}")]
-        public ActionResult DeleteObservations(int id)
+        public ActionResult DeleteObservation(int id)
         {
             User user = this.GetUserFromRequest(HttpContext.User);
 
@@ -90,16 +89,22 @@ namespace CS564.Controllers
                 return BadRequest();
             }
 
-            // TODO
-            // We should return NotFound() if we cannot find the observation in the database
+            bool success = _context.UpdateObservation(observation);
 
-            return Ok();
+            if (success)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Authorize]
         [Route("")]
-        public async Task<ActionResult<int>> AddObservations()
+        public async Task<ActionResult<int>> AddObservation()
         {
             User user = this.GetUserFromRequest(HttpContext.User);
 
@@ -116,9 +121,8 @@ namespace CS564.Controllers
             }
 
             observation.UserID = user.UserID;
-            observation.LocationID = 1; // TODO 
 
-            int observationID = _context.CreateObservation(observation);
+            int observationID = _context.AddObservation(observation);
 
             if (observationID == -1)
             {

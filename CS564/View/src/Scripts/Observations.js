@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Redirect } from "react-router-dom";
+import AsyncSelect from 'react-select/async';
 
 export class Observations extends Component 
 {
@@ -8,37 +9,37 @@ export class Observations extends Component
     constructor(props) 
     {
         super(props);
+
         this.state = {
             observations: [],
             noObservations: false,
-            animalOptions: [],
+            updateObservation: false,
             id: 0,
             date: '',
-            latitude: '',
-            longitude: '',
             taxonID: '',
-            animal: '',
+            animalOption: '',
+            locationID: '',
+            locationOption: '',
             comments: '',
             errorMessage: '',
-            updateObservation: false,
             isLoggedIn: true
         };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
         this.onChangeAnimal = this.onChangeAnimal.bind(this);
-        this.onChangeLatitude = this.onChangeLatitude.bind(this);
-        this.onChangeLongitude = this.onChangeLongitude.bind(this);
         this.onChangeComments = this.onChangeComments.bind(this);
+        this.onChangeLocation = this.onChangeLocation.bind(this);
         this.onAddObservationClicked = this.onAddObservationClicked.bind(this);
         this.onUpdateObservationClicked = this.onUpdateObservationClicked.bind(this);
         this.onCancelUpdateClicked = this.onCancelUpdateClicked.bind(this);
+        this.getLocationOptions = this.getLocationOptions.bind(this);
+        this.getAnimalOptions = this.getAnimalOptions.bind(this);
     }
 
     componentDidMount() 
     {
         this.popuplateObservations();
-        this.getAnimalOptions();
     }
 
     render()
@@ -80,24 +81,15 @@ export class Observations extends Component
                         <label for="date">Date</label>
                         <input id="date" type="date" class="form-control" placeholder="Date" value={this.state.date} onChange={this.onChangeDate} />
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="latitute">Latitute</label>
-                        <input id="latitute" type="number" class="form-control" placeholder="Latitude" value={this.state.latitude} onChange={this.onChangeLatitude} required />
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="longitute">Longitude</label>
-                        <input id="longitute" type="number" class="form-control" placeholder="Longitude" value={this.state.longitude} onChange={this.onChangeLongitude} required />
+                    <div class="form-group col-md-8">
+                        <label for="location">Location</label>
+                        <AsyncSelect id="location" cacheOptions defaultOptions placeholder="Location" noOptionsMessage={() => null} loadOptions={this.getLocationOptions} value={this.state.locationOption} onChange={this.onChangeLocation} />
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="animal">Animal</label>
-                        <select id="animal" class="form-control" onChange={this.onChangeAnimal} value={this.state.taxonID} required>
-                            <option value="" disabled selected>Animal</option>
-                            {this.state.animalOptions.map(animal =>
-                                <option data-value={JSON.stringify(animal)} value={animal.taxonID}>{animal.commonName} ({animal.scientificName})</option>
-                            )}
-                        </select>
+                        <AsyncSelect id="animal" cacheOptions defaultOptions placeholder="Animal" noOptionsMessage={() => null} loadOptions={this.getAnimalOptions} value={this.state.animalOption} onChange={this.onChangeAnimal} />
                     </div>
                     <div class="form-group col-md-6">
                         <label for="comments">Comments</label>
@@ -115,6 +107,58 @@ export class Observations extends Component
         );
     }
 
+    async getLocationOptions(inputValue, callback)
+    {
+        if (!inputValue)
+        {
+            return callback([]);
+        }
+
+        const response = await fetch('locations/' + inputValue, {
+            method: 'GET',
+        });
+
+        if (response.ok)
+        {
+            const locations = await response.json();
+
+            return locations.map(location => ({
+                value: location.locationID,
+                label: location.county + ', ' + location.state
+            }));
+        }
+        else
+        {
+            callback([]);
+        }
+    }
+
+    async getAnimalOptions(inputValue, callback)
+    {
+        if (!inputValue)
+        {
+            return callback([]);
+        }
+
+        const response = await fetch('animals/' + inputValue, {
+            method: 'GET',
+        });
+
+        if (response.ok)
+        {
+            const animals = await response.json();
+
+            return animals.map(animal => ({
+                value: animal.taxonID,
+                label: animal.commonName + ' (' + animal.scientificName + ')'
+            }));
+        }
+        else
+        {
+            callback([]);
+        }
+    }
+
     renderObservations() 
     {
         if (this.state.observations.length > 0)
@@ -126,8 +170,7 @@ export class Observations extends Component
                         <thead class="thead-dark">
                             <tr>
                                 <th>Date</th>
-                                <th>Latitude</th>
-                                <th>Longitude</th>
+                                <th>Location</th>
                                 <th>Animal</th>
                                 <th>Comments</th>
                                 <th>Modify</th>
@@ -137,8 +180,7 @@ export class Observations extends Component
                             {this.state.observations.map(observation =>
                                 <tr key={observation.observationID}>
                                     <td>{this.convertDate(observation.observationDate)}</td>
-                                    <td>{observation.observationLatitude}</td>
-                                    <td>{observation.observationLongitude}</td>
+                                    <td>{observation.location.county}, {observation.location.state}</td>
                                     <td>{observation.animal.commonName} ({observation.animal.scientificName})</td>
                                     <td>{observation.comments}</td>
                                     <td>
@@ -164,30 +206,19 @@ export class Observations extends Component
         this.setState({ date: event?.target?.value });
     }
 
-    onChangeAnimal(event) 
+    onChangeAnimal(animal) 
     {
-        const index = event?.target?.selectedIndex;
-        const animal = JSON.parse(event?.target?.childNodes[index]?.getAttribute("data-value")); // Contains the actual animal object
-
-        this.setState({
-            taxonID: event?.target?.value,
-            animal: animal 
-        });
-    }
-
-    onChangeLatitude(event) 
-    {
-        this.setState({ latitude: event?.target?.value });
-    }
-
-    onChangeLongitude(event) 
-    {
-        this.setState({ longitude: event?.target?.value });
+        this.setState({ animalOption: animal, taxonID: animal?.value });
     }
 
     onChangeComments(event) 
     {
         this.setState({ comments: event?.target?.value });
+    }
+
+    onChangeLocation(location)
+    {
+        this.setState({ locationOption: location, locationID: location?.value });
     }
 
     onAddObservationClicked(event)
@@ -265,18 +296,16 @@ export class Observations extends Component
         const observation = {
             observationID: 0,
             observationDate: !this.state.date ? new Date() : this.state.date,
-            observationLatitude: this.state.latitude,
-            observationLongitude: this.state.longitude,
-            taxonID: this.state.animal.taxonID,
-            animal: this.state.animal,
+            taxonID: this.state.taxonID,
+            locationID: this.state.locationID,
             comments: this.state.comments,
         };
 
         const headers = new Headers();
         headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
-        const response = await fetch('observation', {
-            method: 'PUT',
+        const response = await fetch('observations', {
+            method: 'POST',
             headers: headers,
             body: JSON.stringify(observation)
         });
@@ -314,17 +343,15 @@ export class Observations extends Component
         const observation = {
             observationID: this.state.id,
             observationDate: !this.state.date ? new Date() : this.state.date,
-            observationLatitude: this.state.latitude,
-            observationLongitude: this.state.longitude,
-            taxonID: this.state.animal.taxonID,
-            animal: this.state.animal,
+            taxonID: this.state.taxonID,
+            locationID: this.state.locationID,
             comments: this.state.comments,
         };
 
         const headers = new Headers();
         headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
-        const response = await fetch('observation/' + this.state.id, {
+        const response = await fetch('observations/' + this.state.id, {
             method: 'PUT',
             headers: headers,
             body: JSON.stringify(observation)
@@ -370,7 +397,7 @@ export class Observations extends Component
         const headers = new Headers();
         headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
-        const response = await fetch('observation/' + id, {
+        const response = await fetch('observations/' + id, {
             method: 'DELETE',
             headers: headers
         });
@@ -401,31 +428,20 @@ export class Observations extends Component
 
     validateObservation()
     {
-        if (!this.state.animal || !this.state.taxonID)
+        if (!this.state.taxonID)
         {
             this.setState({ errorMessage: "Please specify the animal being observed!" });
             return false;
         }
 
-        if (!this.state.latitude || !this.state.longitude)
+        if (!this.state.locationID)
         {
             this.setState({ errorMessage: "Please specify the location of the observation!" });
             return false;
         }
 
-        if (this.state.latitude <-90 || this.state.latitude > 90)
-        {
-            this.setState({ errorMessage: "Invalid latitude! Latitudes must be specified as a degree between -90 and 90." });
-            return false;
-        }
-
-        if (this.state.longitude < -90 || this.state.longitude > 90)
-        {
-            this.setState({ errorMessage: "Invalid longitude! Longitude must be specified as a degree between -180 and 180." });
-            return false;
-        }
-
         this.setState({ errorMessage: "" });
+
         return true;
     }
 
@@ -441,27 +457,12 @@ export class Observations extends Component
         return date ? date.toLocaleDateString() : "";
     }
 
-    async getAnimalOptions()
-    {
-        const response = await fetch('animals', { method: 'GET' });
-
-        if (response.ok)
-        {
-            const data = await response.json();
-            this.setState({ animalOptions: data});
-        }
-        else
-        {
-            // TODO
-        }
-    }
-
     async popuplateObservations() 
     {
         const headers = new Headers();
         headers.set('Authorization', 'Bearer ' + localStorage.getItem("token"));
 
-        const response = await fetch('observation', {
+        const response = await fetch('observations', {
             method: 'GET',
             headers: headers
         });
@@ -508,10 +509,10 @@ export class Observations extends Component
         this.setState({
             id: observation.observationID,
             date: date.getFullYear() + "-" + (month) + "-" + (day),
-            latitude: observation.observationLatitude,
-            longitude: observation.observationLongitude,
-            taxonID: observation.animal?.taxonID,
-            animal: observation.animal,
+            animalOption: { label: observation.animal?.commonName + ' (' + observation.animal?.scientificName + ')', value: observation.animal?.taxonID },
+            taxonID: observation.taxonID,
+            locationOption: { label: observation.location?.county + ', ' + observation.location?.state, value: observation.location?.locationID },
+            locationID: observation.locationID,
             comments: observation.comments,
             updateObservation: true
         });
@@ -522,10 +523,10 @@ export class Observations extends Component
         this.setState({
             id: 0,
             date: '',
-            latitude: '',
-            longitude: '',
-            taxonID: '',
             animal: '',
+            taxonID: '',
+            location: '',
+            locationID: '',
             comments: '',
             updateObservation: false,
         });

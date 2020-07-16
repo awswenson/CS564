@@ -22,10 +22,10 @@ namespace CS564.Controllers
         }
 
         [HttpGet]
-        [Route("")]
-        public ActionResult<IEnumerable<Animal>> GetAllAnimals()
+        [Route("{searchValue}")]
+        public ActionResult<IEnumerable<Animal>> GetAllAnimals(string searchValue)
         {
-            IEnumerable<Animal> animals = _context.Animals.FromSqlRaw("SELECT * FROM trn.Animals ORDER BY CommonName ASC").ToList();
+            IEnumerable<Animal> animals = _context.Animals.FromSqlRaw("SELECT * FROM trn.Animals WHERE CommonName LIKE {0} OR ScientificName LIKE {0} ORDER BY CommonName ASC", searchValue + '%').ToList();
 
             return Ok(animals);
         }

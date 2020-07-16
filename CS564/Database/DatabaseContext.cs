@@ -10,7 +10,7 @@ namespace CS564.Database
 	{
 		public DbSet<User> Users { get; set; }
 
-		public DbSet<Trend> Trend { get; set; }
+		public DbSet<Trend> Trends { get; set; }
 
 		public DbSet<Observation> Observations { get; set; }
 
@@ -28,7 +28,7 @@ namespace CS564.Database
 		{
 			try
 			{
-				return this.Trend.FromSqlRaw("SELECT * FROM trn.Trends WHERE Date = {0} AND County = {1} AND State = {2}", date, county, state).ToList();
+				return this.Trends.FromSqlRaw("SELECT * FROM trn.Trends WHERE Date = {0} AND County = {1} AND State = {2}", date, county, state).ToList();
 			}
 			catch
 			{
@@ -43,7 +43,8 @@ namespace CS564.Database
 			try
 			{
 				//return this.Observations.FromSqlRaw("SELECT * FROM trn.Observations WHERE UserID = {0}", userID).ToList();
-				return this.Observations.Where(observations => observations.UserID == userID).Include(observations => observations.Animal).ToList();
+
+				return this.Observations.Where(observations => observations.UserID == userID).Include(observation => observation.Animal).Include(observation => observation.Location).ToList();
 			}
 			catch
 			{
@@ -55,9 +56,14 @@ namespace CS564.Database
 		{
 			try
 			{
-				this.Observations.FromSqlRaw("DELETE FROM trn.Observations WHERE ObservationID = {0}", observationID);
+				// this.Observations.FromSqlRaw("DELETE FROM trn.Observations WHERE ObservationID = {0}", observationID);
 
-				return true;
+				Observation observation = new Observation { ObservationID = observationID };
+
+				this.Observations.Attach(observation);
+				this.Observations.Remove(observation);
+
+				return this.SaveChanges() == 1;
 			}
 			catch
 			{
@@ -65,7 +71,7 @@ namespace CS564.Database
 			}
 		}
 
-		public int CreateObservation(Observation observation)
+		public int AddObservation(Observation observation)
 		{
 			try
 			{
@@ -80,6 +86,23 @@ namespace CS564.Database
 			catch
 			{
 				return -1;
+			}
+		}
+
+		public bool UpdateObservation(Observation observation)
+		{
+			try
+			{
+				//this.Observations.FromSqlRaw("INSERT INTO trn.Observations (TaxonID, ObservationDate, LocationID, UserID, Comments, ObservationLatitude, ObservationLongitude) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6})",
+				//	observation.TaxonID, observation.ObservationDate, observation.LocationID, observation.UserID, observation.Comments, observation.ObservationLatitude, observation.ObservationLongitude);
+
+				this.Observations.Update(observation);
+
+				return this.SaveChanges() == 1;
+			}
+			catch
+			{
+				return false;
 			}
 		}
 		#endregion
@@ -117,9 +140,8 @@ namespace CS564.Database
 				//	user.UserID, user.FirstName, user.LastName, user.Password, user.Email);
 
 				this.Users.Add(user);
-				this.SaveChanges();
 
-				return true;
+				return this.SaveChanges() == 1;
 			}
 			catch
 			{
