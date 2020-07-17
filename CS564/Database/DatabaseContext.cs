@@ -28,7 +28,7 @@ namespace CS564.Database
 		{
 			try
 			{
-				return this.Trends.FromSqlRaw("SELECT * FROM trn.Trends WHERE Date = {0} AND County = {1} AND State = {2}", date, county, state).ToList();
+				return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0} AND County = {1} AND State = {2}", date, county, state).ToList();
 			}
 			catch
 			{
@@ -42,7 +42,7 @@ namespace CS564.Database
 		{
 			try
 			{
-				//return this.Observations.FromSqlRaw("SELECT * FROM trn.Observations WHERE UserID = {0}", userID).ToList();
+				//return this.Observations.FromSqlRaw("SELECT * FROM trn.Observations o, trn.Animals a, trn.Locations l WHERE o.UserID = {0} AND o.TaxonID = a.TaxonID AND o.LocationID = l.LocationID", userID).ToList();
 
 				return this.Observations.Where(observations => observations.UserID == userID).Include(observation => observation.Animal).Include(observation => observation.Location).ToList();
 			}
@@ -54,6 +54,11 @@ namespace CS564.Database
 
 		public bool DeleteObservation(int observationID)
 		{
+			if (observationID <= 0)
+			{
+				return false;
+			}
+
 			try
 			{
 				// this.Observations.FromSqlRaw("DELETE FROM trn.Observations WHERE ObservationID = {0}", observationID);
@@ -73,6 +78,16 @@ namespace CS564.Database
 
 		public int AddObservation(Observation observation)
 		{
+			if (observation == null)
+			{
+				return -1;
+			}
+
+			observation.Animal = null;
+			observation.Location = null;
+			observation.Location = null;
+			observation.User = null;
+
 			try
 			{
 				//this.Observations.FromSqlRaw("INSERT INTO trn.Observations (TaxonID, ObservationDate, LocationID, UserID, Comments, ObservationLatitude, ObservationLongitude) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6})",
@@ -91,6 +106,16 @@ namespace CS564.Database
 
 		public bool UpdateObservation(Observation observation)
 		{
+			if (observation == null)
+			{
+				return false;
+			}
+
+			observation.Animal = null;
+			observation.Location = null;
+			observation.Location = null;
+			observation.User = null;
+
 			try
 			{
 				//this.Observations.FromSqlRaw("INSERT INTO trn.Observations (TaxonID, ObservationDate, LocationID, UserID, Comments, ObservationLatitude, ObservationLongitude) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6})",
@@ -110,6 +135,11 @@ namespace CS564.Database
 		#region User queries
 		public User ValidateUser(int userID, string password)
 		{
+			if (userID <= 0 || string.IsNullOrEmpty(password))
+			{
+				return null;
+			}
+
 			try
 			{
 				return this.Users.FromSqlRaw("SELECT * FROM trn.Users WHERE UserID = {0} AND Password = {1}", userID, password).First();
@@ -122,6 +152,11 @@ namespace CS564.Database
 
 		public User GetUser(int userID)
 		{
+			if (userID <= 0)
+			{
+				return null;
+			}
+
 			try
 			{
 				return this.Users.FromSqlRaw("SELECT * FROM trn.Users WHERE UserID = {0}", userID).First();

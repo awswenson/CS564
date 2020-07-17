@@ -75,7 +75,7 @@ export class CreateAccount extends Component
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="userID">User ID</label>
-                            <input id="userID" type="number" class="form-control" placeholder="Username" value={this.state.userID} onChange={this.onChangeUserID} required />
+                            <input id="userID" type="number" min="1" class="form-control" placeholder="Username" value={this.state.userID} onChange={this.onChangeUserID} required />
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -111,9 +111,27 @@ export class CreateAccount extends Component
     {
         const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
+        if (!this.state.email)
+        {
+            this.setState({ errorMessage: "An email address is required! Please provide an email address." });
+            return false;
+        }
+
         if (!emailRegex.test(this.state.email.toLowerCase()))
         {
             this.setState({ errorMessage: "The format of the provided email is invalid!" });
+            return false;
+        }
+
+        if (!this.state.firstName || !this.state.lastName)
+        {
+            this.setState({ errorMessage: "The provided name is invalid! Make sure to specify both a first and last name." });
+            return false;
+        }
+
+        if (this.state.userID <= 0)
+        {
+            this.setState({ errorMessage: "The provided user ID is invalid! Please provide a positive user ID." });
             return false;
         }
 

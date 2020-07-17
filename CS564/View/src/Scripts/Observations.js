@@ -135,7 +135,7 @@ export class Observations extends Component
 
     async getAnimalOptions(inputValue, callback)
     {
-        if (!inputValue)
+        if (!inputValue || inputValue.length < 2) // Improve performance by only performing searches if the user enters more than 1 character
         {
             return callback([]);
         }
@@ -523,9 +523,9 @@ export class Observations extends Component
         this.setState({
             id: 0,
             date: '',
-            animal: '',
+            animalOption: '',
             taxonID: '',
-            location: '',
+            locationOption: '',
             locationID: '',
             comments: '',
             updateObservation: false,
