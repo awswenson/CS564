@@ -24,9 +24,9 @@ namespace CS564.Controllers
 
         [HttpGet]
         [Route("")]
-        public ActionResult<IEnumerable<Trend>> TrendObservations(DateTime date, string animal, string county, string state)
+        public ActionResult<IEnumerable<Trend>> TrendObservations(DateTime date, int locationID)
         {
-            return Ok(_context.GetAllTrendsMatchingCriteria(date, null, county, state));
+            return Ok(_context.GetAllTrendsMatchingCriteria(date, locationID));
         }
     }
 }

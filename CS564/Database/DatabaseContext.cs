@@ -24,21 +24,47 @@ namespace CS564.Database
 		}
 
         #region Search queries
-		public IEnumerable<Trend> GetAllTrendsMatchingCriteria(DateTime date, Animal animal, string county, string state)
+		public IEnumerable<Trend> GetAllTrendsMatchingCriteria(DateTime date, int locationID)
 		{
 			try
 			{
-				return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0} AND County = {1} AND State = {2}", date, county, state).ToList();
+				if (locationID <= 0)
+				{
+					return this.GetAllTrendsMatchingCriteria(date);
+				}
+
+				Location location = this.Locations.FromSqlRaw("SELECT * FROM trn.Locations WHERE LocationID = {0}", locationID).First();
+
+				if (location == null)
+				{
+					return this.GetAllTrendsMatchingCriteria(date);
+				}
+				else
+				{
+					return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0} AND County = {1} AND State = {2}", date, location.County, location.State).ToList();
+				}
 			}
 			catch
 			{
 				return new List<Trend>();
 			}
 		}
-        #endregion
 
-        #region Observation queries
-        public IEnumerable<Observation> GetAllObservations(int userID)
+		public IEnumerable<Trend> GetAllTrendsMatchingCriteria(DateTime date)
+		{
+			try
+			{
+				return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0}", date).ToList();
+			}
+			catch
+			{
+				return new List<Trend>();
+			}
+		}
+		#endregion
+
+		#region Observation queries
+		public IEnumerable<Observation> GetAllObservations(int userID)
 		{
 			try
 			{
@@ -76,11 +102,11 @@ namespace CS564.Database
 			}
 		}
 
-		public int AddObservation(Observation observation)
+		public bool AddObservation(Observation observation)
 		{
 			if (observation == null)
 			{
-				return -1;
+				return false;
 			}
 
 			observation.Animal = null;
@@ -94,13 +120,21 @@ namespace CS564.Database
 				//	observation.TaxonID, observation.ObservationDate, observation.LocationID, observation.UserID, observation.Comments, observation.ObservationLatitude, observation.ObservationLongitude);
 
 				this.Observations.Add(observation);
-				this.SaveChanges();
+				bool success = this.SaveChanges() == 1;
 
-				return observation.ObservationID;
+				// At this point, observationID will be populated with the ID that was used when inserting into the database
+
+				if (success) 
+				{
+					this.Entry(observation).Reference(o => o.Animal).Load(); // Loads the animal into the observation object
+					this.Entry(observation).Reference(o => o.Location).Load(); // Loads the location into the observation object
+				}
+
+				return success;
 			}
 			catch
 			{
-				return -1;
+				return false;
 			}
 		}
 
@@ -122,8 +156,15 @@ namespace CS564.Database
 				//	observation.TaxonID, observation.ObservationDate, observation.LocationID, observation.UserID, observation.Comments, observation.ObservationLatitude, observation.ObservationLongitude);
 
 				this.Observations.Update(observation);
+				bool success = this.SaveChanges() == 1;
 
-				return this.SaveChanges() == 1;
+				if (success)
+				{
+					this.Entry(observation).Reference(o => o.Animal).Load(); // Loads the animal into the observation object
+					this.Entry(observation).Reference(o => o.Location).Load(); // Loads the location into the observation object
+				}
+
+				return success;
 			}
 			catch
 			{

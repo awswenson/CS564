@@ -293,7 +293,7 @@ export class Observations extends Component
 
     async add()
     {
-        const observation = {
+        let observation = {
             observationID: 0,
             observationDate: !this.state.date ? new Date() : this.state.date,
             taxonID: this.state.taxonID,
@@ -312,8 +312,7 @@ export class Observations extends Component
 
         if (response.ok)
         {
-            observation.observationID = await response.text();
-
+            observation = await response.json();
             this.state.observations.push(observation);
 
             this.clearObservationState();
@@ -340,7 +339,7 @@ export class Observations extends Component
 
     async update()
     {
-        const observation = {
+        let observation = {
             observationID: this.state.id,
             observationDate: !this.state.date ? new Date() : this.state.date,
             taxonID: this.state.taxonID,
@@ -359,6 +358,7 @@ export class Observations extends Component
 
         if (response.ok)
         {
+            observation = await response.json();
             const index = this.state.observations.findIndex(observation => observation.observationID === this.state.id);
 
             if (index !== -1)

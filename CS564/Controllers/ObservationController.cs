@@ -73,38 +73,7 @@ namespace CS564.Controllers
         [HttpPut]
         [Authorize]
         [Route("{id:int}")]
-        public async Task<ActionResult> UpdateObservation(int id)
-        {
-            User user = this.GetUserFromRequest(HttpContext.User);
-
-            if (user == null)
-            {
-                return BadRequest();
-            }
-
-            Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
-
-            if (observation == null)
-            {
-                return BadRequest();
-            }
-
-            bool success = _context.UpdateObservation(observation);
-
-            if (success)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPost]
-        [Authorize]
-        [Route("")]
-        public async Task<ActionResult<int>> AddObservation()
+        public async Task<ActionResult<Observation>> UpdateObservation(int id)
         {
             User user = this.GetUserFromRequest(HttpContext.User);
 
@@ -122,15 +91,48 @@ namespace CS564.Controllers
 
             observation.UserID = user.UserID;
 
-            int observationID = _context.AddObservation(observation);
+            bool success = _context.UpdateObservation(observation);
 
-            if (observationID == -1)
+            if (success)
             {
-                return BadRequest();
+                return Ok(observation);
             }
             else
             {
-                return Ok(observationID);
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("")]
+        public async Task<ActionResult<Observation>> AddObservation()
+        {
+            User user = this.GetUserFromRequest(HttpContext.User);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
+
+            if (observation == null)
+            {
+                return BadRequest();
+            }
+
+            observation.UserID = user.UserID;
+
+            bool success = _context.AddObservation(observation);
+
+            if (success)
+            {
+                return Ok(observation);
+            }
+            else
+            {
+                return BadRequest();
             }
         }
 

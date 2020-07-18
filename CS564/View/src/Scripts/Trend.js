@@ -1,78 +1,19 @@
 ﻿import React, { Component } from 'react';
+import AsyncSelect from 'react-select/async';
 
 export class Trend extends Component {
     static displayName = Trend.name;
 
-    states = [
-        "Alabama",
-        "Alaska",
-        "Arizona",
-        "Arkansas",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "Florida",
-        "Georgia",
-        "Hawaii",
-        "Idaho",
-        "Illnois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Pennsylvania",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "Utah",
-        "Vermont",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming"
-    ];
-
-    trendDate = '';
-    trendAnimal = '';
-    trendCounty = '';
-    trendState = '';
-    trendLocation = '';
-
     constructor(props)
     {
         super(props);
-        this.state = { trendResults: [], noResults: false };
+        this.state = { trendResults: [], date: '', locationOption: '', locationID: '', noResults: false };
 
         this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
-        this.onChangeAnimal = this.onChangeAnimal.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
-        this.onChangeCounty = this.onChangeCounty.bind(this);
-        this.onChangeState = this.onChangeState.bind(this);
+        this.onChangeLocation = this.onChangeLocation.bind(this);
         this.onTrendClicked = this.onTrendClicked.bind(this);
+        this.getLocationOptions = this.getLocationOptions.bind(this);
     }
 
     componentDidMount()
@@ -99,34 +40,11 @@ export class Trend extends Component {
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="date">Date</label>
-                        <input id="date" type="date" class="form-control" placeholder="Date" onChange={this.onChangeDate} />
+                        <input id="date" type="date" class="form-control" placeholder="Date" value={this.state.date} onChange={this.onChangeDate} />
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="county">County</label>
-                        <input id="county" type="text" class="form-control" placeholder="County" onChange={this.onChangeCounty} />
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label for="state">State</label>
-                        <select id="state" class="form-control" trendable="State" onChange={this.onChangeState}>
-                            <option value="" disabled selected>State</option>
-                            {this.states.map(state =>
-                                <option value={state}>{state}</option>
-                            )}
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="animal">Kingdom</label>
-                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="animal">Phylum</label>
-                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="animal">Class</label>
-                        <input id="animal" type="text" class="form-control" placeholder="Animal" onChange={this.onChangeAnimal} />
+                    <div class="form-group col-md-6">
+                        <label for="location">Location</label>
+                        <AsyncSelect id="location" cacheOptions defaultOptions placeholder="Location" noOptionsMessage={() => null} loadOptions={this.getLocationOptions} value={this.state.locationOption} onChange={this.onChangeLocation} />
                     </div>
                 </div>
                 <div class="form-row">
@@ -148,7 +66,6 @@ export class Trend extends Component {
                     <table class="table table-hover sortable">
                         <thead class="thead-dark">
                             <tr>
-
                                 <th>Animal</th>
                                 <th>Trending</th>
                             </tr>
@@ -170,6 +87,32 @@ export class Trend extends Component {
     renderNoResultsBanner() 
     {
         return this.state.noResults ? <div class="alert alert-info mt-4" role="alert">There were no species found given the trending criteria</div> : null;
+    }
+
+    async getLocationOptions(inputValue, callback)
+    {
+        if (!inputValue)
+        {
+            return callback([]);
+        }
+
+        const response = await fetch('locations/' + inputValue, {
+            method: 'GET',
+        });
+
+        if (response.ok)
+        {
+            const locations = await response.json();
+
+            return locations.map(location => ({
+                value: location.locationID,
+                label: location.county + ', ' + location.state
+            }));
+        }
+        else
+        {
+            callback([]);
+        }
     }
 
     onKeyUpFilter(event)
@@ -210,24 +153,14 @@ export class Trend extends Component {
         return date ? date.toLocaleDateString() : "";
     }
 
-    onChangeAnimal(event)
+    onChangeLocation(location)
     {
-        this.trendAnimal = event?.target?.value;
+        this.setState({ locationOption: location, locationID: location?.value });
     }
 
     onChangeDate(event)
     {
-        this.trendDate = event?.target?.value;
-    }
-
-    onChangeCounty(event)
-    {
-        this.trendCounty = event?.target?.value;
-    }
-
-    onChangeState(event)
-    {
-        this.trendState = event?.target?.value;
+        this.setState({ date: event?.target?.value });
     }
 
     onTrendClicked(event)
@@ -238,7 +171,7 @@ export class Trend extends Component {
 
     async trend()
     {
-        const params = { date: this.trendDate ? this.trendDate : new Date().toLocaleDateString(), animal: this.trendAnimal, county: this.trendCounty, state: this.trendState };
+        const params = { date: this.state.date ? this.state.date : new Date().toLocaleDateString(), locationID: this.state.locationID };
         const query = Object.keys(params)
             .map(index => encodeURIComponent(index) + '=' + encodeURIComponent(params[index]))
             .join('&');
