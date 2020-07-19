@@ -73,23 +73,28 @@ namespace CS564.Controllers
         [HttpPut]
         [Authorize]
         [Route("{id:int}")]
-        public async Task<ActionResult<Observation>> UpdateObservation(int id)
+        public async Task<ActionResult> UpdateObservation(int id)
         {
             User user = this.GetUserFromRequest(HttpContext.User);
 
             if (user == null)
             {
-                return BadRequest();
+                return BadRequest("There is no user associated with the observation!");
             }
 
             Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
 
             if (observation == null)
             {
-                return BadRequest();
+                return BadRequest("No observation data specified!");
             }
 
             observation.UserID = user.UserID;
+
+            if (!this.ValidateObservation(observation, out string errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
 
             bool success = _context.UpdateObservation(observation);
 
@@ -99,30 +104,35 @@ namespace CS564.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest("There was an issue updating the observation in the database");
             }
         }
 
         [HttpPost]
         [Authorize]
         [Route("")]
-        public async Task<ActionResult<Observation>> AddObservation()
+        public async Task<ActionResult> AddObservation()
         {
             User user = this.GetUserFromRequest(HttpContext.User);
 
             if (user == null)
             {
-                return BadRequest();
+                return BadRequest("There is no user associated with the observation!");
             }
 
             Observation observation = await GetObservationFromBody(HttpContext.Request.Body);
 
             if (observation == null)
             {
-                return BadRequest();
+                return BadRequest("No observation data specified!");
             }
 
             observation.UserID = user.UserID;
+
+            if (!this.ValidateObservation(observation, out string errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
 
             bool success = _context.AddObservation(observation);
 
@@ -132,7 +142,26 @@ namespace CS564.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest("There was an issue adding the observation to the database");
+            }
+        }
+
+        public User GetUserFromRequest(ClaimsPrincipal principal)
+        {
+            if (principal.HasClaim(c => c.Type == ClaimTypes.NameIdentifier))
+            {
+                if (int.TryParse(principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value, out int userID))
+                {
+                    return _context.GetUser(userID);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
             }
         }
 
@@ -155,23 +184,30 @@ namespace CS564.Controllers
             }
         }
 
-        public User GetUserFromRequest(ClaimsPrincipal principal)
+        private bool ValidateObservation(Observation observation, out string errorMessage)
         {
-            if (principal.HasClaim(c => c.Type == ClaimTypes.NameIdentifier))
+            if (observation == null)
             {
-                if (int.TryParse(principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value, out int userID))
-                {
-                    return _context.GetUser(userID);
-                }
-                else
-                {
-                    return null;
-                }
+                errorMessage = "No observation data specified!";
+            }
+            else if (observation.UserID <= 0)
+            {
+                errorMessage = "There is no user associated with the observation!";
+            }
+            else if (observation.TaxonID <= 0)
+            {
+                errorMessage = "Please specify the animal being observed!";
+            }
+            else if (observation.LocationID <= 0)
+            {
+                errorMessage = "Please specify the location of the observation!";
             }
             else
             {
-                return null;
+                errorMessage = string.Empty;
             }
+
+            return string.IsNullOrEmpty(errorMessage);
         }
     }
 }

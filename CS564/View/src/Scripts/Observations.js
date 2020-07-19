@@ -107,58 +107,6 @@ export class Observations extends Component
         );
     }
 
-    async getLocationOptions(inputValue, callback)
-    {
-        if (!inputValue)
-        {
-            return callback([]);
-        }
-
-        const response = await fetch('locations/' + inputValue, {
-            method: 'GET',
-        });
-
-        if (response.ok)
-        {
-            const locations = await response.json();
-
-            return locations.map(location => ({
-                value: location.locationID,
-                label: location.county + ', ' + location.state
-            }));
-        }
-        else
-        {
-            callback([]);
-        }
-    }
-
-    async getAnimalOptions(inputValue, callback)
-    {
-        if (!inputValue || inputValue.length < 2) // Improve performance by only performing searches if the user enters more than 1 character
-        {
-            return callback([]);
-        }
-
-        const response = await fetch('animals/' + inputValue, {
-            method: 'GET',
-        });
-
-        if (response.ok)
-        {
-            const animals = await response.json();
-
-            return animals.map(animal => ({
-                value: animal.taxonID,
-                label: animal.commonName + ' (' + animal.scientificName + ')'
-            }));
-        }
-        else
-        {
-            callback([]);
-        }
-    }
-
     renderObservations() 
     {
         if (this.state.observations.length > 0)
@@ -201,6 +149,72 @@ export class Observations extends Component
         return this.state.noObservations ? <div class="alert alert-info mt-4" role="alert">You have no recorded observations. Use the form above to add your first observation!</div> : null;
     }
 
+    /**
+     * Function tied to the locations search field that calls the web server to load the locations that match
+     * the given search criteria
+     * 
+     * @param inputValue Search value
+     * @param callback The function to call with the locations that match the given search criteria
+     */
+    async getLocationOptions(inputValue, callback)
+    {
+        if (!inputValue)
+        {
+            return callback([]);
+        }
+
+        const response = await fetch('locations/' + inputValue, {
+            method: 'GET',
+        });
+
+        if (response.ok)
+        {
+            const locations = await response.json();
+
+            return callback(locations.map(location => ({
+                value: location.locationID,
+                label: location.county + ', ' + location.state
+            })));
+        }
+        else
+        {
+            callback([]);
+        }
+    }
+
+    /**
+     * Function tied to the animals search field that calls the web server to load the animals that match
+     * the given search criteria
+     *
+     * @param inputValue Search value
+     * @param callback The function to call with the animals that match the given search criteria
+     */
+    async getAnimalOptions(inputValue, callback)
+    {
+        if (!inputValue || inputValue.length < 2) // Improve performance by only performing searches if the user enters more than 1 character
+        {
+            return callback([]);
+        }
+
+        const response = await fetch('animals/' + inputValue, {
+            method: 'GET',
+        });
+
+        if (response.ok)
+        {
+            const animals = await response.json();
+
+            return callback(animals.map(animal => ({
+                value: animal.taxonID,
+                label: animal.commonName + ' (' + animal.scientificName + ')'
+            })));
+        }
+        else
+        {
+            callback([]);
+        }
+    }
+
     onChangeDate(event) 
     {
         this.setState({ date: event?.target?.value });
@@ -221,6 +235,11 @@ export class Observations extends Component
         this.setState({ locationOption: location, locationID: location?.value });
     }
 
+    /**
+     * Event handler for when the "Add Observations" button is clicked
+     * 
+     * @param event Event arguments
+     */
     onAddObservationClicked(event)
     {
         event.preventDefault(); // Prevent the page from refreshing
@@ -231,6 +250,11 @@ export class Observations extends Component
         }
     }
 
+    /**
+     * Event handler for when the "Update Observations" button is clicked
+     *
+     * @param event Event arguments
+     */
     onUpdateObservationClicked(event)
     {
         event.preventDefault(); // Prevent the page from refreshing
@@ -241,6 +265,11 @@ export class Observations extends Component
         }
     }
 
+    /**
+     * Event handler for when the "Cancel" button is clicked
+     *
+     * @param event Event arguments
+     */
     onCancelUpdateClicked(event)
     {
         event.preventDefault(); // Prevent the page from refreshing
@@ -248,6 +277,38 @@ export class Observations extends Component
         this.clearObservationState();
     }
 
+    /**
+     * Event handler for when the "Edit" button is clicked
+     *
+     * @param event Event arguments
+     */
+    onEditClicked(observation, event) 
+    {
+        if (!observation)
+        {
+            return;
+        }
+
+        this.setObservationState(observation);
+
+        this.setState({ errorMessage: '' });
+    }
+
+    /**
+     * Event handler for when the "Delete" button is clicked
+     *
+     * @param event Event arguments
+     */
+    onDeleteClicked(id, event) 
+    {
+        this.delete(id);
+    }
+
+    /**
+     * Event handler for when the end user attempts to filter the results 
+     *
+     * @param event Event arguments
+     */
     onKeyUpFilter(event) 
     {
         const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the trend field
@@ -274,23 +335,21 @@ export class Observations extends Component
         }
     }
 
-    onEditClicked(observation, event) 
+    convertDate(dateTime) 
     {
-        if (!observation)
+        if (!dateTime) 
         {
-            return;
+            return "";
         }
 
-        this.setObservationState(observation);
+        const date = new Date(dateTime);
 
-        this.setState({ errorMessage: '' });
+        return date ? date.toLocaleDateString() : "";
     }
 
-    onDeleteClicked(id, event) 
-    {
-        this.delete(id);
-    }
-
+    /**
+     * Calls the web server to add an observation to the database
+     */
     async add()
     {
         let observation = {
@@ -332,11 +391,15 @@ export class Observations extends Component
             }
             else
             {
-                this.setState({ errorMessage: "Unable to add observation. Please try again." });
+                const errorMessage = await response.text();
+                this.setState({ errorMessage: "Unable to add observation. " + errorMessage });
             }
         }
     }
 
+    /**
+     * Calls the web server to update an observation in the database
+     */
     async update()
     {
         let observation = {
@@ -387,11 +450,15 @@ export class Observations extends Component
             }
             else
             {
-                this.setState({ errorMessage: "Unable to update observation. Please try again." });
+                const errorMessage = await response.text();
+                this.setState({ errorMessage: "Unable to update observation. " + errorMessage });
             }
         }
     }
 
+    /**
+     * Calls the web server to delete an observation in the database
+     */
     async delete(id) 
     {
         const headers = new Headers();
@@ -426,6 +493,10 @@ export class Observations extends Component
         }
     }
 
+    /**
+     * Validates the observation data input by the end user. This should be called before attempting to add
+     * or update an observation
+     */
     validateObservation()
     {
         if (!this.state.taxonID)
@@ -445,18 +516,9 @@ export class Observations extends Component
         return true;
     }
 
-    convertDate(dateTime) 
-    {
-        if (!dateTime) 
-        {
-            return "";
-        }
-
-        const date = new Date(dateTime);
-
-        return date ? date.toLocaleDateString() : "";
-    }
-
+    /**
+     * Calls the web server to get the end user's observations for display
+     */
     async popuplateObservations() 
     {
         const headers = new Headers();
@@ -495,6 +557,12 @@ export class Observations extends Component
         }
     }
 
+    /**
+     * Sets the state object of the component with an observation. This is typically called when we're attempting to
+     * edit an observation as it will update the observation form with the currently selected observation
+     * 
+     * @param observation The observation object
+     */
     setObservationState(observation)
     {
         if (!observation)
@@ -518,6 +586,10 @@ export class Observations extends Component
         });
     }
 
+    /**
+     * Clears the observation from the state object of the component. This is typically called when after the end user
+     * adds and observation, edits an observation, or cancels editing an observation
+     */
     clearObservationState()
     {
         this.setState({

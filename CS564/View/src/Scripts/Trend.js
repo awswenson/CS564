@@ -89,6 +89,13 @@ export class Trend extends Component {
         return this.state.noResults ? <div class="alert alert-info mt-4" role="alert">There were no species found given the trending criteria</div> : null;
     }
 
+    /**
+     * Function tied to the locations search field that calls the web server to load the locations that match
+     * the given search criteria
+     *
+     * @param inputValue Search value
+     * @param callback The function to call with the locations that match the given search criteria
+     */
     async getLocationOptions(inputValue, callback)
     {
         if (!inputValue)
@@ -104,10 +111,10 @@ export class Trend extends Component {
         {
             const locations = await response.json();
 
-            return locations.map(location => ({
+            return callback(locations.map(location => ({
                 value: location.locationID,
                 label: location.county + ', ' + location.state
-            }));
+            })));
         }
         else
         {

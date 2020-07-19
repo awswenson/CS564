@@ -28,8 +28,10 @@ namespace CS564.Models
 
         public DateTime ObservationDate { get; set; }
 
+        [Column(TypeName = "numeric(19,12)")]
         public decimal ObservationLatitude { get; set; }
 
+        [Column(TypeName = "numeric(19,12)")]
         public decimal ObservationLongitude { get; set; }
 
         public string Comments { get; set; }

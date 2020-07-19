@@ -173,6 +173,46 @@ namespace CS564.Database
 		}
 		#endregion
 
+		#region Animal queries
+		public IEnumerable<Animal> GetAnimalsBySearchValue(string searchValue)
+		{
+			if (string.IsNullOrEmpty(searchValue))
+			{
+				return null;
+			}
+
+			try
+			{
+				return this.Animals.FromSqlRaw("SELECT * FROM trn.Animals WHERE CommonName LIKE {0} OR ScientificName LIKE {0} ORDER BY CommonName ASC", searchValue + '%').ToList();
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		#endregion
+
+		#region Location queries
+		public IEnumerable<Location> GetLocationsBySearchValue(string searchValue)
+		{
+			if (string.IsNullOrEmpty(searchValue))
+			{
+				return null;
+			}
+
+			try
+			{
+				return this.Locations.FromSqlRaw("SELECT * FROM trn.Locations WHERE County LIKE {0} OR State LIKE {0} ORDER BY County ASC", searchValue + '%').ToList();
+			}
+			catch
+			{
+				return null;
+			}
+		}
+
+		#endregion
+
 		#region User queries
 		public User ValidateUser(int userID, string password)
 		{
@@ -188,6 +228,23 @@ namespace CS564.Database
 			catch
 			{
 				return null;
+			}
+		}
+
+		public bool DoesUserExist(int userID)
+		{
+			if (userID <= 0)
+			{
+				return false;
+			}
+
+			try
+			{
+				return this.Users.Any(user => user.UserID == userID);
+			}
+			catch
+			{
+				return false;
 			}
 		}
 

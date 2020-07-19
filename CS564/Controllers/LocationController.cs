@@ -25,9 +25,7 @@ namespace CS564.Controllers
         [Route("{searchValue}")]
         public ActionResult<IEnumerable<Location>> GetLocationsBySearchValue(string searchValue)
         {
-            IEnumerable<Location> locations = _context.Locations.FromSqlRaw("SELECT * FROM trn.Locations WHERE County LIKE {0} OR State LIKE {0} ORDER BY County ASC", searchValue + '%').ToList();
-
-            return Ok(locations);
+            return Ok(_context.GetLocationsBySearchValue(searchValue));
         }
     }
 }

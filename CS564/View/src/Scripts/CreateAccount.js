@@ -20,11 +20,6 @@ export class CreateAccount extends Component
         this.onChangeConfirmPassword = this.onChangeConfirmPassword.bind(this);
     }
 
-    componentDidMount() 
-    {
-
-    }
-
     render() 
     {
         return this.state.isLoggedIn ? this.renderRedirect() : this.renderMain();
@@ -135,6 +130,12 @@ export class CreateAccount extends Component
             return false;
         }
 
+        if (!this.state.password)
+        {
+            this.setState({ errorMessage: "Please specify a password!" });
+            return false;
+        }
+
         if (this.state.password != this.state.confirmPassword)
         {
             this.setState({ errorMessage: "The provided passwords do not match!" });
@@ -174,7 +175,8 @@ export class CreateAccount extends Component
         }
         else 
         {
-            this.setState({ isLoggedIn: false, isError: "Error creating account. Please try again." });
+            const errorMessage = await response.text();
+            this.setState({ isLoggedIn: false, errorMessage: "Unable to create account. " + errorMessage });
         }
     }
 

@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CS564.Controllers
@@ -76,13 +77,13 @@ namespace CS564.Controllers
 
         [HttpPost]
         [Route("create")]
-        public async Task<ActionResult<string>> CreateAccount()
+        public async Task<ActionResult> CreateAccount()
         {
             User user = await GetUserFromBody(HttpContext.Request.Body);
 
             if (user == null)
             {
-                return BadRequest();
+                return BadRequest("No user data specified!");
             }
 
             string authHeader = HttpContext.Request.Headers["Authorization"];
@@ -91,11 +92,21 @@ namespace CS564.Controllers
 
             if (!success)
             {
-                return BadRequest();
+                return BadRequest("There was an error retrieving the username and password from the request! Please try again.");
             }
 
             user.UserID = userID;
             user.Password = password;
+
+            if (!this.ValidateUser(user, out string errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
+            if (_context.DoesUserExist(userID))
+            {
+                return BadRequest("The provided user ID is already in use. Please select another ID.");
+            }
 
             _context.CreateUser(user);
 
@@ -181,6 +192,42 @@ namespace CS564.Controllers
             JwtSecurityToken token = new JwtSecurityToken(_config["Jwt:Issuer"], _config["Jwt:Issuer"], claims, expires: DateTime.Now.AddDays(1), signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private bool ValidateUser(User user, out string errorMessage)
+        {
+            Regex emailRegex = new Regex(@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
+
+            if (user == null)
+            {
+                errorMessage = "No user data specified!";
+            }
+            else if (string.IsNullOrEmpty(user.Email))
+            {
+                errorMessage = "An email address is required! Please provide an email address.";
+            }
+            else if (!emailRegex.IsMatch(user.Email.ToLower()))
+            {
+                errorMessage = "The format of the provided email is invalid!";
+            }
+            else if (string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName))
+            {
+                errorMessage = "The provided name is invalid! Make sure to specify both a first and last name.";
+            }
+            else if (user.UserID <= 0)
+            {
+                errorMessage = "The provided user ID is invalid! Please provide a positive user ID.";
+            }
+            else if (string.IsNullOrEmpty(user.Password))
+            {
+                errorMessage = "Please specify a password!";
+            }
+            else
+            {
+                errorMessage = string.Empty;
+            }
+
+            return string.IsNullOrEmpty(errorMessage);
         }
     }
 }
