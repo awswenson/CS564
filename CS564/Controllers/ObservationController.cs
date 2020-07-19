@@ -89,6 +89,11 @@ namespace CS564.Controllers
                 return BadRequest("No observation data specified!");
             }
 
+            if (observation.ObservationID != id)
+            {
+                return BadRequest("The observation data specified did not match the observation we want to delete! Please try again.");
+            }
+
             observation.UserID = user.UserID;
 
             if (!this.ValidateObservation(observation, out string errorMessage))
@@ -104,7 +109,7 @@ namespace CS564.Controllers
             }
             else
             {
-                return BadRequest("There was an issue updating the observation in the database");
+                return BadRequest("There was an issue updating the observation in the database!");
             }
         }
 
@@ -142,7 +147,7 @@ namespace CS564.Controllers
             }
             else
             {
-                return BadRequest("There was an issue adding the observation to the database");
+                return BadRequest("There was an issue adding the observation to the database!");
             }
         }
 
