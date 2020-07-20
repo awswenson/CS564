@@ -1,4 +1,4 @@
-﻿using CS564.Models;
+using CS564.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace CS564.Database
 					return this.GetAllTrendsMatchingCriteria(date);
 				}
 
-				return this.Trends.FromSqlRaw("SELECT o.ObservationDate AS 'Date', l.County AS 'County', l.State AS 'State', a.CommonName AS 'Animal', COUNT(*) AS 'Trending', a.Class AS 'Class' FROM trn.Observations o, trn.Animals a, trn.Locations l WHERE o.ObservationDate = {0} AND o.LocationID = {1} AND o.TaxonID = a.TaxonID AND o.LocationID = l.LocationID GROUP BY a.CommonName, o.ObservationDate, l.County, l.State, a.Class ORDER BY Trending DESC", date, locationID).ToList();
+				return this.Trends.FromSqlRaw("SELECT o.ObservationDate AS 'Date', l.County AS 'County', l.State AS 'State', a.CommonName AS 'Animal', COUNT(*) AS 'Trending', a.Class AS 'Class' FROM trn.Observations o, trn.Animals a, trn.Locations l WHERE o.ObservationDate = {0} AND o.LocationID = {1} AND o.TaxonID = a.TaxonID AND o.LocationID = l.LocationID GROUP BY a.CommonName, o.ObservationDate, l.County, l.State, a.Class ORDER BY Trending DESC, Animal", date, locationID).ToList();
 			}
 			catch
 			{
