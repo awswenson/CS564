@@ -6,8 +6,6 @@ namespace CS564.Models
 {
     public class Trend
     {
-        [Key]
-        public int TrendId { get; set; }
         public DateTime Date { get; set; }
 
         public string County { get; set; }

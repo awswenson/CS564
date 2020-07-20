@@ -23,7 +23,12 @@ namespace CS564.Database
 
 		}
 
-        #region Search queries
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Trend>().HasNoKey();
+		}
+
+		#region Search queries
 		public IEnumerable<Trend> GetAllTrendsMatchingCriteria(DateTime date, int locationID)
 		{
 			try
@@ -33,17 +38,7 @@ namespace CS564.Database
 					return this.GetAllTrendsMatchingCriteria(date);
 				}
 
-				Location location = this.Locations.FromSqlRaw("SELECT * FROM trn.Locations WHERE LocationID = {0}", locationID).First();
-
-				if (location == null)
-				{
-					return this.GetAllTrendsMatchingCriteria(date);
-				}
-				else
-				{
-					 //return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends WHERE Date = {0} AND County = {1} AND State = {2}", date, location.County, location.State).ToList();
-					return this.Trends.FromSqlRaw("SELECT TrendId, Date, County, State, Animal, Trending, Class  FROM trn.TrendCounts WHERE Date = {0}  AND State = {2} AND County = {1} ORDER BY Trending DESC ; " , date, location.County, location.State).ToList() ; 
-				}
+				return this.Trends.FromSqlRaw("SELECT o.ObservationDate AS 'Date', l.County AS 'County', l.State AS 'State', a.CommonName AS 'Animal', COUNT(*) AS 'Trending', a.Class AS 'Class' FROM trn.Observations o, trn.Animals a, trn.Locations l WHERE o.ObservationDate = {0} AND o.LocationID = {1} AND o.TaxonID = a.TaxonID AND o.LocationID = l.LocationID GROUP BY a.CommonName, o.ObservationDate, l.County, l.State, a.Class ORDER BY Trending DESC", date, locationID).ToList();
 			}
 			catch
 			{
@@ -55,15 +50,13 @@ namespace CS564.Database
 		{
 			try
 			{
-				// return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends WHERE Date = {0}", date).ToList();
-				return this.Trends.FromSqlRaw("SELECT TOP 100 TrendId, Date, County, State, Animal, Trending, Class  FROM trn.TrendCounts WHERE Date = {0}  ORDER BY Trending DESC ; ", date).ToList();
+				return this.Trends.FromSqlRaw("SELECT TOP 50 o.ObservationDate AS 'Date', l.County AS 'County', l.State AS 'State', a.CommonName AS 'Animal', COUNT(*) AS 'Trending', a.Class AS 'Class' FROM trn.Observations o, trn.Animals a WHERE o.ObservationDate = {0} AND o.TaxonID = a.TaxonID GROUP BY a.CommonName, o.ObservationDate, l.County, l.State, a.Class ORDER BY Trending DESC", date).ToList();
 			}
 			catch
 			{
 				return new List<Trend>();
 			}
 		}
-
 		#endregion
 
 		#region Observation queries

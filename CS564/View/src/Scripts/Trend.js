@@ -7,9 +7,8 @@ export class Trend extends Component {
     constructor(props)
     {
         super(props);
-        this.state = { trendResults: [], mammalResults: [],birdResults: [],reptileResults: [] , date: '', locationOption: '', locationID: '', noResults: false }; // add similar things for mammals
+        this.state = { trendResults: [], mammalResults: [],birdResults: [],reptileResults: [] , date: '', locationOption: '', locationID: '', noResults: false };
 
-        this.onKeyUpFilter = this.onKeyUpFilter.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
         this.onChangeLocation = this.onChangeLocation.bind(this);
         this.onTrendClicked = this.onTrendClicked.bind(this);
@@ -59,12 +58,14 @@ export class Trend extends Component {
         );
     }
 
-    renderTrendResults() { // renders top 5 most sighted animals.
+    /**
+     * Renders top 5 most sighted animals
+     */
+    renderTrendResults() { 
         if (this.state.trendResults.length > 0) {
             return (
                 <div>
                     <h2>Top Observed Animals </h2>
-                    <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
                     <table class="table table-hover sortable">
                         <thead class="thead-dark">
                             <tr>
@@ -88,12 +89,14 @@ export class Trend extends Component {
         }
     }
 
-    renderMammalResults() { // renders most sighted mammals
+    /**
+     * Renders most sighted mammals
+     */
+    renderMammalResults() { 
         if (this.state.mammalResults.length > 0) {
             return (
                 <div>
                     <h2><img src="https://static.thenounproject.com/png/166727-200.png" alt="Squirrel" width="100" height="100" /> Trending Mammals </h2>
-                    <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
                     <table class="table table-hover sortable">
                         <thead class="thead-dark">
                             <tr>
@@ -115,12 +118,14 @@ export class Trend extends Component {
         }
     }
 
+    /**
+     * Renders most sighted birds
+     */
     renderAvianResults() {
         if (this.state.birdResults.length > 0) {
             return (
                 <div>
                     <h2><img src="https://static.thenounproject.com/png/1211525-200.png" alt="Bird" width="100" height="100" /> Trending Birds </h2>
-                    <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
                     <table class="table table-hover sortable">
                         <thead class="thead-dark">
                             <tr>
@@ -142,12 +147,14 @@ export class Trend extends Component {
         }
     }
 
+    /**
+     * Renders most sighted reptiles
+     */
     renderReptileResults() {
         if (this.state.reptileResults.length > 0) {
             return (
                 <div>
                     <h2><img src='https://icon-library.com/images/reptile-icon/reptile-icon-8.jpg' alt="Lizard" width="100" height="100" /> Trending Reptiles </h2>
-                    <input class="form-control mb-4 mt-4" type="text" placeholder="Filter Results" onKeyUp={this.onKeyUpFilter} />
                     <table class="table table-hover sortable">
                         <thead class="thead-dark">
                             <tr>
@@ -168,7 +175,6 @@ export class Trend extends Component {
             );
         }
     }
-
 
     renderNoResultsBanner() 
     {
@@ -198,32 +204,6 @@ export class Trend extends Component {
         else
         {
             callback([]);
-        }
-    }
-
-    onKeyUpFilter(event)
-    {
-        const filter = event?.target?.value?.toUpperCase() || ""; // Contains the value in the trend field
-        const rows = this.trendTable?.getElementsByTagName("tr");
-
-        if (!rows)
-        {
-            return; // No rows to filter
-        }
-
-        // Loop through all table rows and hide those who don't match the trend query
-        for (let i = 0; i < rows.length; i++)
-        {
-            const data = rows[i].textContent || rows[i].innerText;
-
-            if (data.toUpperCase().indexOf(filter) > -1)
-            {
-                rows[i].style.display = "";
-            }
-            else
-            {
-                rows[i].style.display = "none";
-            }
         }
     }
 
@@ -257,7 +237,23 @@ export class Trend extends Component {
 
     async trend()
     {
-        const params = { date: this.state.date ? this.state.date : new Date().toLocaleDateString(), locationID: this.state.locationID };
+        let params;
+
+        if (this.state.date)
+        {
+            params = { date: this.state.date, locationID: this.state.locationID };
+        }
+        else // Use today's date for the search
+        {
+            const date = new Date();
+            const day = ("0" + date.getDate()).slice(-2);
+            const month = ("0" + (date.getMonth() + 1)).slice(-2);
+
+            this.setState({ date: date.getFullYear() + "-" + (month) + "-" + (day) });
+
+            params = { date: date.toLocaleDateString(), locationID: this.state.locationID };
+        }
+
         const query = Object.keys(params)
             .map(index => encodeURIComponent(index) + '=' + encodeURIComponent(params[index]))
             .join('&');
@@ -267,55 +263,19 @@ export class Trend extends Component {
         if (response.ok)
         {
             const data = await response.json();  
+            const hasResults = data.top5Animals?.length > 0 || data.mammals?.length > 0 || data.birds?.length > 0 || data.reptiles?.length > 0;
 
-            //data.top5Animals; 
-            //data.mammals;
-            //data.birds;
-            //data.reptiles;
-
-            //Parese Top 5
-            if (data.top5Animals.length > 0)
-            {
-                this.setState({ trendResults: data.top5Animals, noResults: false });
-            }
-            else
-            {
-                this.setState({ trendResults: [], noResults: true });
-            }
-            // Parse Mammals
-            if (data.mammals.length > 0)
-            {
-                this.setState({ mammalResults: data.mammals, noResults: false });
-            }
-            else
-            {
-                this.setState({ mammalResults: [], noResults: true });
-            }
-            // Parse Birds
-            if (data.birds.length > 0)
-            {
-                this.setState({ birdResults: data.birds, noResults: false });
-            }
-            else
-            {
-                this.setState({ birdResults: [], noResults: true });
-            }
-            // Parse Reptiles
-            if (data.reptiles.length > 0)
-            {
-                this.setState({ reptileResults: data.reptiles, noResults: false });
-            }
-            else
-            {
-                this.setState({ reptileResults: [], noResults: true });
-            }
+            this.setState({
+                trendResults: data.top5Animals?.length > 0 ? data.top5Animals : [],
+                mammalResults: data.mammals?.length > 0 ? data.mammals : [],
+                birdResults: data.birds?.length > 0 ? data.birds : [],
+                reptileResults: data.reptiles?.length > 0 ? data.reptiles : [],
+                noResults: !hasResults
+            })
         }
-        else // did not get back good results. 
+        else 
         {
-            this.setState({ trendResults: [], noResults: true });
-            this.setState({ mammalResults: [], noResults: true });
-            this.setState({ birdResults: [], noResults: true });
-            this.setState({ reptileResults: [], noResults: true });
+            this.setState({ trendResults: [], mammalResults: [], birdResults: [], reptileResults: [], noResults: true });
         }
     }
 }

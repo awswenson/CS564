@@ -33,40 +33,35 @@ namespace CS564.Controllers
             List<Trend> birds = new List<Trend>();
             List<Trend> reptiles = new List<Trend>();
 
-            int Top5Counter = 5; 
-            Trend currentTrend = null; 
-            for (int i = 0; i < allTrends.Count(); i++)
+            int top5Counter = 5; 
+            foreach (Trend currentTrend in allTrends)
             {
-                currentTrend = allTrends.ElementAt(i);
-
-                if (Top5Counter > 0)
+                if (top5Counter > 0)
                 {
                     top5Animals.Add(currentTrend);
-                    Top5Counter--;
+                    top5Counter--;
                 }
 
-                if (currentTrend.Class.Equals("Mammalia"))
+                if ("Mammalia".Equals(currentTrend.Class))
                 {
                     mammals.Add(currentTrend);
                 }
-                else if (currentTrend.Class.Equals("Aves"))
+                else if ("Aves".Equals(currentTrend.Class))
                 {
                     birds.Add(currentTrend); 
                 } 
-                else if (currentTrend.Class.Equals("Reptilia"))
+                else if ("Reptilia".Equals(currentTrend.Class))
                 {
                     reptiles.Add(currentTrend); 
                 }
             }
 
-            return Ok( new
-            {
-                top5Animals ,
-                mammals , 
-                birds ,
+            return Ok(new {
+                top5Animals,
+                mammals, 
+                birds,
                 reptiles
-            }   
-                );
+            });
         }
     }
 }
