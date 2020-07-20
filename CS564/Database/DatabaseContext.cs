@@ -41,7 +41,8 @@ namespace CS564.Database
 				}
 				else
 				{
-					return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0} AND County = {1} AND State = {2}", date, location.County, location.State).ToList();
+					 //return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends WHERE Date = {0} AND County = {1} AND State = {2}", date, location.County, location.State).ToList();
+					return this.Trends.FromSqlRaw("SELECT TrendId, Date, County, State, Animal, Trending, Class  FROM trn.TrendCounts WHERE Date = {0}  AND State = {2} AND County = {1} ORDER BY Trending DESC ; " , date, location.County, location.State).ToList() ; 
 				}
 			}
 			catch
@@ -54,13 +55,15 @@ namespace CS564.Database
 		{
 			try
 			{
-				return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends1 WHERE Date = {0}", date).ToList();
+				// return this.Trends.FromSqlRaw("SELECT * FROM trn.TopFiveTrends WHERE Date = {0}", date).ToList();
+				return this.Trends.FromSqlRaw("SELECT TOP 100 TrendId, Date, County, State, Animal, Trending, Class  FROM trn.TrendCounts WHERE Date = {0}  ORDER BY Trending DESC ; ", date).ToList();
 			}
 			catch
 			{
 				return new List<Trend>();
 			}
 		}
+
 		#endregion
 
 		#region Observation queries
