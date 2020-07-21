@@ -14,10 +14,9 @@ export class Home extends Component {
                     The primary objectives of the application are as follows:
                 </p>
                 <ul>
-                    <li>View the top trending species, ranked by number of observations, by location and time of year</li>
-                    <li>Filter the trending species by selecting a specific phylum, class, or kingdom</li>
+                    <li>View the top trending species by location and time of year, ranked by number of observations</li>
+                    <li>View the top trending species for a given class</li>
                     <li>Insert, edit, and delete observations</li>
-                    <li>View the top trending species for a given class by location and time of year</li>
                 </ul>
             </div>
         );

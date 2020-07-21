@@ -121,7 +121,7 @@ export class Observations extends Component
                                 <th>Location</th>
                                 <th>Animal</th>
                                 <th>Comments</th>
-                                <th>Modify</th>
+                                <th style={{ minWidth: "160px" }}>Modify</th>
                             </tr>
                         </thead>
                         <tbody ref={ref => this.observationsTable = ref}>
